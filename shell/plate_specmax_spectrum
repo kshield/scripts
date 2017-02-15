@@ -1,0 +1,33 @@
+#!/bin/bash
+# JAR Feb 15, 2017 - this script converts well-plate spectra from specmax to comma-separated
+export LANG=c
+[ ! -d archived ] && mkdir archived
+[ ! -d processed ] && mkdir processed
+if [ "$#" -gt 1 ]; then
+  echo "ERROR: Too many arguments! usage: convert_specmax fileextention (optional, txt is default)"
+  exit 1
+fi
+if [ "$#" == 1 ]; then
+  NFILES=$(ls *.$1 | wc -l)
+  if [ $NFILES -eq 0 ]; then
+    echo "there are no .$1 files to convert!"
+    exit 1
+  fi
+  echo "your .$1 files will be converted!"
+  echo " "
+  for fname in *.$1
+  do
+    F=$(basename $fname .$1)
+    mv $F.$1 $F.txt
+  done
+fi
+for fname in *.txt
+do
+  echo $fname
+  cp $fname archived/$fname
+  NPOINTS=$(head -n 3 $fname | tail -n 1 | awk '{print $9}')
+  echo $NPOINTS
+  head -n $((NPOINTS + 4)) $fname | tail -n $(($NPOINTS+1)) > processed/$fname
+  rm $fname
+  sed -i.bak $'s|\t|, |g' processed/$fname
+done
