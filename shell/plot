@@ -1,0 +1,28 @@
+#! /bin/tcsh
+# plot a figure 
+if($# <= 2)then
+	echo " usage: plot datafile col1 col2 "
+	echo 
+	exit 1
+endif
+#
+if(! -e $1) then
+	echo " data file " $1 " does not exist!"
+	exit 1
+endif
+#
+setenv DAT_FILE $1
+echo " >> plotting from: " $1 " using columns: " $2 " and " $3
+setenv GNUPLOT_FILE "GNUPLOT_FILE"
+if(-e $GNUPLOT_FILE) then
+	rm -f $GNUPLOT_FILE
+endif
+# make the file 
+ echo "set term xquarts persist" >> $GNUPLOT_FILE
+ echo "plot '"$DAT_FILE"' using "$2":"$3" w l"  >> $GNUPLOT_FILE
+# run the file
+ gnuplot $GNUPLOT_FILE
+# cleanup
+ rm -f $GNUPLOT_FILE
+
+

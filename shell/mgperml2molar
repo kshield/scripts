@@ -1,0 +1,22 @@
+#!/bin/bash
+# JAR Feb 6, 2017 - this script converts protein concentration in mg/mL to M
+if [ "$#" -eq 0 ]; then
+  echo "Protein concentration in mg/mL?"
+  read mgperml
+  echo "Weight of the protein in kDa?"
+  read weight
+elif [ "$#" -eq 1 ]; then
+  mgperml=$1
+  echo "The protein concentration is $mgperml mg/mL."
+  echo "Weight of the protein in kDa?"
+  read weight
+elif [ "$#" -eq 2 ]; then
+  mgperml=$1
+  weight=$2
+  echo "The protein concentration is $mgperml mg/mL and the protein weight is $weight kDa."
+elif [ "$#" -gt 2 ]; then
+  echo "You have provided too many inputs!  Exiting. :-("
+  exit 1
+fi
+echo "Your molarity is: "
+R -q -e "$mgperml / ($weight * 1000)"
