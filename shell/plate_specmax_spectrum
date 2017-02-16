@@ -29,5 +29,12 @@ do
   echo $NPOINTS
   head -n $((NPOINTS + 4)) $fname | tail -n $(($NPOINTS+1)) > processed/$fname
   rm $fname
+  L1=$(head -n 1 processed/$fname | awk '{$1="Wavelength"}{$2="Temperature"}1')
+  L2=($L1 "X")
+  echo $L1
+  sed -i.bak "1s|.*|$L1|" processed/$fname
+  sed -i.bak $'1s| |, |g' processed/$fname
   sed -i.bak $'s|\t|, |g' processed/$fname
+  head -n 2 processed/$fname
 done
+rm -f processed/*.bak
