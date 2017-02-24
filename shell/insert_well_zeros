@@ -1,0 +1,29 @@
+#!/bin/bash
+# JAR Feb 24, 2017 - this script acts on a directory to insert 0s in well names
+# e.g. a file A1.txt would become A01.txt
+if [ "$#" -gt 1 ]; then
+  echo "ERROR: Too many arguments! usage: insert_well_zeros fileextention (optional, txt is default)"
+  exit 1
+fi
+if [ "$#" == 1 ]; then
+  NFILES=$(ls *.$1 | wc -l)
+  if [ $NFILES -eq 0 ]; then
+    echo "there are no .$1 files to convert!"
+    exit 1
+  fi
+  echo "your .$1 files will be converted!"
+  echo " "
+  for fname in *.$1
+  do
+    F=$(basename $fname .$1)
+    mv $F.$1 $F.txt
+  done
+fi
+for fname in *.txt
+do
+  F=$(basename $fname .txt)
+  if [ ${#F} == 2 ]; then
+    newF=${F:0:1}'0'${F:1:1}
+    mv $fname $newF.txt
+  fi
+done
