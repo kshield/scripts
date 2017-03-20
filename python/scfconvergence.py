@@ -35,7 +35,7 @@ if len(sys.argv) == 3:
     skip = 0
 elif len(sys.argv) == 4:
     scfnum = int(sys.argv[2])
-    skip = sys.argv[3][1]
+    skip = int(float(sys.argv[3])*-1)
 else:
     scfnum = 1
     skip = 0
@@ -79,6 +79,7 @@ try:
 except:
     sys.exit("The specified file does not exist!")
 # truncate the list if needed
+print(skip)
 if skip == 0:
     print(' ')
 else:
@@ -86,12 +87,13 @@ else:
     delta_energies[0:skip] = []
 
 # plot energies
-plt.plot(energies,'o-')
+x_axis = range(1+skip, 1+len(energies)+skip)
+plt.plot(x_axis, energies,'o-')
 plt.title('%d SCF Iterations' %len(energies))
 plt.xlabel('SCF Iteration')
 plt.ylabel('SCF Energy')
 plt.show()
-plt.plot(delta_energies,'o-')
+plt.plot(x_axis, delta_energies,'o-')
 plt.title('%d SCF Iterations' %len(delta_energies))
 plt.xlabel('SCF Iteration')
 plt.ylabel('SCF Energy Change')

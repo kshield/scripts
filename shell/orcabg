@@ -1,0 +1,23 @@
+#! /bin/tcsh
+#
+# auto-run ORCA in background
+#
+if($# < 1)then
+   echo " usage: orcabg filename (.inp will be added)"
+   echo
+   exit 1
+endif
+# 
+setenv INPUT_FILE $1.inp
+setenv OUTPUT_FILE $1.out
+#
+if(! -e $INPUT_FILE) then
+  echo "file " $INPUT_FILE " does not exist!"
+  echo
+  exit 1
+endif
+#run
+  /usr/bin/orca40/orca $INPUT_FILE >& $OUTPUT_FILE &
+  echo
+  echo " Running to " $OUTPUT_FILE
+#echo
