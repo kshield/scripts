@@ -18,6 +18,7 @@ elif sys.argv[2].isdigit() == False:
 # define search string and clear the list
 searchfor = "SCF ITERATIONS"
 energies = []
+delta_energies = []
 
 # optionally assign the SCF to print
 if len(sys.argv) == 3:
@@ -52,6 +53,7 @@ with open(fname) as f:
                         # get the energy as a number and add it to the list
                         energy = float(line.split()[1])
                         energies.append(energy)
+                        delta_energies.append(float(line.split()[2]))
                     try:
                         line = f.next()
                     except:
@@ -63,6 +65,11 @@ with open(fname) as f:
 # plot energies
 plt.plot(energies,'o-')
 plt.title('%d SCF Iterations' %len(energies))
+plt.xlabel('SCF Iteration')
+plt.ylabel('SCF Energy')
+plt.show()
+plt.plot(delta_energies,'o-')
+plt.title('%d SCF Iterations' %len(delta_energies))
 plt.xlabel('SCF Iteration')
 plt.ylabel('SCF Energy')
 plt.show()
