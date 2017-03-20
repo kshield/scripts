@@ -80,7 +80,7 @@ except:
     sys.exit("The specified file does not exist!")
 # truncate the list if needed
 if skip == 0:
-    disp(' ')
+    print(' ')
 else:
     energies[0:skip] = []
     delta_energies[0:skip] = []
