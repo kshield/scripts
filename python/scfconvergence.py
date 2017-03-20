@@ -32,7 +32,12 @@ with open(fname) as f:
                     # get the energy as a number and add it to the list
                     energy = float(line.split()[1])
                     energies.append(energy)
-                line = f.next()
+                try:
+                    line = f.next()
+                except:
+                    print(' ')
+                    print('- - !! THE SCF IS NOT YET CONVERGED !! - -')
+                    break
             break
 
 # plot energies
