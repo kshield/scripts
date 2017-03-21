@@ -26,8 +26,8 @@ def read_xyz(xyz):
     y = []
     z = []
     f = open(xyz, "r")
-    f.next()
-    f.next()
+    next(f)
+    next(f)
     for line in f:
         data = line.split()
         atoms.append(data[0])
@@ -41,7 +41,7 @@ def read_xyz(xyz):
 def read_vpot(vpot):
     v = []
     f = open(vpot, "r")
-    f.next()
+    next(f)
     for line in f:
         data = line.split()
         v.append(float(data[3]))
@@ -51,6 +51,7 @@ def read_vpot(vpot):
 if __name__ == "__main__":
 
     basename = sys.argv[1]
+    print(basename)
     npoints = int(sys.argv[2])
 
     ang_to_au = 1.0 / 0.5291772083
