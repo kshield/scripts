@@ -7,15 +7,18 @@ import matplotlib.pyplot as plt
 
 # check for correct number of inputs
 if len(sys.argv) < 2:
+    print(' ')
     sys.exit("You must supply exactly one filename!")
 elif len(sys.argv) == 2:
+    print(' ')
     print('- - !! ONLY THE FIRST SCF WILL BE PRINTED !! - -')
 elif (len(sys.argv) == 3 and sys.argv[2].isdigit() == True):
-    print(' ')
+    pass
 elif (len(sys.argv) == 4 and sys.argv[2].isdigit() == True and
     sys.argv[3][1].isdigit() == True and sys.argv[3][0] is '-'):
-    print(' ')
+    pass
 else:
+    print(' ')
     sys.exit('You must supply exactly one filename, and an optional SCF number and pre-cutoff (negative)!')
 
 
@@ -66,9 +69,12 @@ try:
                         # check to see if the line is an iteration
                         elif line.split()[0].isdigit():
                             # get the energy as a number and add it to the list
-                            energy = float(line.split()[1])
-                            energies.append(energy)
-                            delta_energies.append(float(line.split()[2]))
+                            try:
+                                energy = float(line.split()[1])
+                                energies.append(energy)
+                                delta_energies.append(float(line.split()[2]))
+                            except ValueError:
+                                pass
                         try:
                             line = f.next()
                         except:
@@ -76,12 +82,11 @@ try:
                             print('- - !! THE SCF IS NOT YET CONVERGED !! - -')
                             break
                     break
-except:
+except IOError:
     sys.exit("The specified file does not exist!")
 # truncate the list if needed
-print(skip)
 if skip == 0:
-    print(' ')
+    pass
 else:
     energies[0:skip] = []
     delta_energies[0:skip] = []
