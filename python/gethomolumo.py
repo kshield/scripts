@@ -1,13 +1,27 @@
-#!/usr/bin/python
-# shortcut "nel", return alpha and beta HOMO numbers and spin for ORCA output files
+#!/usr/bin/env python
+"""
+--------------------------------------------------------------------------------
+(c) 2017 Julian Rees
 
+License: GNU GPLv3
+
+Description: Print the HOMO and LUMO numbers of an ORCA output file.
+
+Run: python gethomolumo.py filename
+
+Arguments: filename - file name with extension
+
+Dependencies: none
+--------------------------------------------------------------------------------
+"""
+print(__doc__)
 import sys
 import math
 
 # check for correct number of inputs
 if len(sys.argv) != 2:
     sys.exit("You must supply exactly one filename!")
-    
+
 # look for the alpha and beta occupancies
 searchfor = "N(Alpha)"
 searchfor2 = "N(Beta)"
@@ -25,7 +39,7 @@ for line in content:
 # print output
 if 'Nalpha' in locals():
     print " "
-    print "- - - ORBITAL ANALYSIS FINISHED - - -"
+    print "- - !! ORBITAL ANALYSIS FINISHED !! - -"
     print "Spin-up HOMO: %d" %Nalpha
     print "Spin-down HOMO: %d" %Nbeta
     if Nalpha != Nbeta:

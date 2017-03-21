@@ -1,6 +1,20 @@
-#!/usr/bin/python
-# shortcut "nel", return alpha and beta HOMO numbers and spin for ORCA output files
+#!/usr/bin/env python
+"""
+--------------------------------------------------------------------------------
+(c) 2017 Julian Rees
 
+License: GNU GPLv3
+
+Description: Plot the SCF cycle trajectory of a geometry optimization in ORCA.
+
+Run: python scfenergymap.py filename
+
+Arguments: filename - file name with extension
+
+Dependencies: matplotlib
+--------------------------------------------------------------------------------
+"""
+print(__doc__)
 import sys
 import math
 import matplotlib.pyplot as plt

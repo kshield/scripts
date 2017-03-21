@@ -1,6 +1,25 @@
-#!/usr/bin/python
-# shortcut "nel", return alpha and beta HOMO numbers and spin for ORCA output files
+#!/usr/bin/env python
+"""
+--------------------------------------------------------------------------------
+(c) 2017 Julian Rees
 
+License: GNU GPLv3
+
+Description: Plot the performance of the SCF convergence in ORCA.
+
+Run: python scfconvergence.py filename [scfnum skip]
+
+Arguments: filename - file name with extension;
+                      there should be at least one SCF cycle present
+           scfnum   - optional: if more than one SCF cycle (e.g. a geometry
+                      optimization), the desired cycle to plot
+           skip     - optional: SCF iterations to truncate from start;
+                      to better visualize late-stage convergence
+
+Dependencies: matplotlib
+--------------------------------------------------------------------------------
+"""
+print(__doc__)
 import sys
 import math
 import matplotlib.pyplot as plt
@@ -19,13 +38,9 @@ elif (len(sys.argv) == 4 and sys.argv[2].isdigit() == True and
     pass
 else:
     print(' ')
-    sys.exit('You must supply exactly one filename, and an optional SCF number and pre-cutoff (negative)!')
-
-
-#####  Use a negative number as the next input to truncate initial SCFs for better graphs
-
-
-
+    str1 = 'You must supply exactly one filename, '
+    str2 = 'and an optional SCF number and pre-cutoff (negative)!'
+    sys.exit(str1 + str2)
 
 # define search string and clear the list
 searchfor = "SCF ITERATIONS"

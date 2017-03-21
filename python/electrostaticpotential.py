@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """
+--------------------------------------------------------------------------------
 (c) 2013 Marius Retegan
 
 License: BSD-2-Clause
@@ -13,8 +14,11 @@ Arguments: basename - file name without the extension;
            npoints  - number of grid points per side
                       (80 should be fine)
 Dependencies: numpy
-"""
 
+Modified by JAR, 3-20-2017
+--------------------------------------------------------------------------------
+"""
+print(__doc__)
 import sys
 import subprocess
 import numpy as np
