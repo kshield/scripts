@@ -81,7 +81,7 @@ for i in range(0,ndilutes):
     if np.round_(concs[i], decimals = 4) > 0.01:
         concs[i] = np.round_(concs[i], decimals = 4)
     else:
-        concs[i] = str(np.round_(concs[i]*1000, decimals = 3)) + ' x10^3'
+        concs[i] = str(np.round_(concs[i]*1000, decimals = 3)) + ' x10^-3'
 
 print(str(ndilutes) + ' dilutions of your stock solution [ ] = ' + stock + ' will be calculated.\n')
 
