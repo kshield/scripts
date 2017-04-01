@@ -1,0 +1,23 @@
+#!/bin/bash
+# JAR Apr 1, 2017 - this script reads an ORCA4.0 .trj file from
+# a geometry optimization, prompts for a cycle number,
+# and calls Avogadro to vizualize the requested cycle.
+if [ "$#" != 1 ]; then
+  echo "ERROR!! You must supply exactly one filename!"
+  exit 1
+fi
+fname=$1
+
+NATOMS=$(head -n 1 $fname | awk '{print $1}')
+nlines=$(wc -l $fname | awk '{print $1}')
+ncycles=$((nlines / ($NATOMS + 2)))
+
+echo "There are $ncycles geometry cycles.\n"
+echo "Select a cycle to display: "
+read cycle
+
+headarg=$(($cycle * ($NATOMS + 2)))
+tailarg=$(($NATOMS + 2))
+head -n $headarg $fname | tail -n $tailarg | cat > cyclegeom.xyz
+nohup /Volumes/JARees\ HD/Applications/Avogadro.app/Contents/MacOS/Avogadro cyclegeom.xyz &
+rm -f nohup.out
