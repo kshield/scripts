@@ -1,0 +1,41 @@
+#!/bin/bash
+# JAR May 15, 2017 - this script removes header lines from text files
+# a backup of the original files will be copied to the "archived" directory, and the processed files will be copied to the "processed" directory
+# the first argument is the number of lines to strip, and the optional second argument specifies the file extention to process (default is txt)
+[ ! -d archived ] && mkdir archived
+[ ! -d processed ] && mkdir processed
+if [ "$#" -gt 2 ]; then
+  echo "ERROR: Too many arguments! usage: strip_header.sh fileextention (optional, txt is default)"
+  exit 1
+fi
+if [ "$#" == 2 ]; then
+  EXT=$2
+else
+  EXT="txt"
+fi
+
+NFILES=$(ls *.$EXT | wc -l)
+if [ $NFILES -eq 0 ]; then
+  echo "there are no .$EXT files to convert!"
+  exit 1
+fi
+echo " "
+echo "your .$EXT files will be converted!"
+echo " "
+echo "the first $1 line(s) will be removed"
+echo " "
+for fname in *.$EXT
+do
+  F=$(basename $fname .$EXT)
+  mv $F.$EXT $F.txt
+done
+
+for fname in *.txt
+do
+  #echo $fname
+  cp $fname archived/$fname
+  NPOINTS=$(wc -l $fname | awk '{print $1}')
+  #echo $NPOINTS
+  tail -n $(($NPOINTS - $1)) $fname | awk '{print $1 ",", $2}' > processed/$fname
+  rm $fname
+done
