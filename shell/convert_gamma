@@ -1,0 +1,41 @@
+#!/bin/bash
+# JAR Jun 10, 2017 - This script will read a plain text file containing the
+# numbers and names of samples and use that data to parse a file from the
+# gamma counter containing the raw data
+if [ "$#" -gt 2 ]; then
+  echo "ERROR: Too many arguments! usage: convert_gamma indexfile datafile"
+  exit 1
+fi
+if [ "$#" == 2 ]; then
+  J='hi'
+  IND=$1
+  DAT=$2
+else
+  echo "ERROR: Too few arguments! usage: convert_gamma indexfile datafile"
+  exit 1
+fi
+
+# get the lines with Open and strip the non-data
+grep Open $2 > extracted_data
+while read P; do
+  echo $P | awk '{print $2}' >> headerless_data
+done <extracted_data
+
+# read the index file and expand it for sample numbers and orders
+while read P; do
+  num=$(echo $P | awk '{print $1}')
+  iter=1
+  SAMP_TYPE=$(echo $P | awk '{print $2}')
+  while [ "$iter" -le $(($num)) ]; do
+    echo -e $SAMP_TYPE','$iter >> expanded_indices
+    iter=$(($iter + 1))
+  done
+done <$1
+
+# merge the data, print a sample, and remove the temporary files
+paste -d ',' expanded_indices headerless_data > converted_data.dat
+cat converted_data.dat
+
+rm -f expanded_indices
+rm -f extracted_data
+rm -f headerless_data

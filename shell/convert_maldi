@@ -1,0 +1,33 @@
+#!/bin/bash
+# JAR May 15, 2017 - this script processes text files from the MALDI into a comma-separated text file without a header line
+# a backup of the original datafile will be copied to the "archived" directory, and the processed files will be copied to the "processed" directory
+# the optional first argument specifies the file extention to process (default is txt)
+[ ! -d archived ] && mkdir archived
+[ ! -d processed ] && mkdir processed
+if [ "$#" -gt 1 ]; then
+  echo "ERROR: Too many arguments! usage: convert_maldi.sh fileextention (optional, txt is default)"
+  exit 1
+fi
+if [ "$#" == 1 ]; then
+  NFILES=$(ls *.$1 | wc -l)
+  if [ $NFILES -eq 0 ]; then
+    echo "there are no .$1 files to convert!"
+    exit 1
+  fi
+  echo "your .$1 files will be converted!"
+  echo " "
+  for fname in *.$1
+  do
+    F=$(basename $fname .$1)
+    mv $F.$1 $F.txt
+  done
+fi
+for fname in *.txt
+do
+  #echo $fname
+  cp $fname archived/$fname
+  NPOINTS=$(wc -l $fname | awk '{print $1}')
+  #echo $NPOINTS
+  tail -n $(($NPOINTS - 2)) $fname | awk '{print $1 ",", $2}' > processed/$fname
+  rm $fname
+done
