@@ -1,0 +1,106 @@
+#!/bin/bash
+# JAR Jun 10, 2017 - This script will read a plain text file containing the
+# numbers and names of samples and use that data to parse a file from the
+# gamma counter containing the raw data
+if [ "$#" -gt 2 ]; then
+  echo "ERROR: Too many arguments! usage: convert_gamma indexfile datafile"
+  exit 1
+fi
+if [ "$#" == 2 ]; then
+  IND=$1
+  DAT=$2
+else
+  echo "ERROR: Too few arguments! usage: convert_gamma indexfile datafile"
+  exit 1
+fi
+
+# get the lines with Open and strip the non-data
+grep Open $2 > extracted_data
+while read P; do
+  echo $P | awk '{print $2}' >> headerless_data
+done <extracted_data
+
+# read the index file and expand it for sample numbers and orders
+while read P; do
+  num=$(echo $P | awk '{print $1}')
+  iter=1
+  SAMP_TYPE=$(echo $P | awk '{print $2}')
+  while [ "$iter" -le $(($num)) ]; do
+    echo -e $SAMP_TYPE','$iter >> expanded_indices
+    iter=$(($iter + 1))
+  done
+done <$1
+
+# merge the data, print a sample, and remove the temporary files
+paste -d ',' expanded_indices headerless_data > converted_data.csv
+cat converted_data.csv
+
+rm -f expanded_indices
+rm -f extracted_data
+rm -f headerless_data
+#!/bin/bash
+# JAR May 15, 2017 - this script processes text files from the MALDI into a comma-separated text file without a header line
+# a backup of the original datafile will be copied to the "archived" directory, and the processed files will be copied to the "processed" directory
+# the optional first argument specifies the file extention to process (default is txt)
+[ ! -d archived ] && mkdir archived
+[ ! -d processed ] && mkdir processed
+if [ "$#" -gt 1 ]; then
+  echo "ERROR: Too many arguments! usage: convert_maldi.sh fileextention (optional, txt is default)"
+  exit 1
+fi
+if [ "$#" == 1 ]; then
+  NFILES=$(ls *.$1 | wc -l)
+  if [ $NFILES -eq 0 ]; then
+    echo "there are no .$1 files to convert!"
+    exit 1
+  fi
+  echo "your .$1 files will be converted!"
+  echo " "
+  for fname in *.$1
+  do
+    F=$(basename $fname .$1)
+    mv $F.$1 $F.txt
+  done
+fi
+for fname in *.txt
+do
+  #echo $fname
+  cp $fname archived/$fname
+  NPOINTS=$(wc -l $fname | awk '{print $1}')
+  #echo $NPOINTS
+  tail -n $(($NPOINTS - 2)) $fname | awk '{print $1 ",", $2}' > processed/$fname
+  rm $fname
+done
+#!/bin/bash 
+# JAR Feb 2, 2017 - this script processes single UV-vis spectra from the SpectraMax into a comma-separated text file
+# a backup of the original datafile will be copied to the "archived" directory, and the processed files will be copied to the "processed" directory
+# UPDATE Feb 4, 2017 - the optional first argument specifies the file extention to process (default is txt)
+[ ! -d archived ] && mkdir archived
+[ ! -d processed ] && mkdir processed
+if [ "$#" -gt 1 ]; then
+  echo "ERROR: Too many arguments! usage: convert_specmax.sh fileextention (optional, txt is default)"
+  exit 1
+fi
+if [ "$#" == 1 ]; then
+  NFILES=$(ls *.$1 | wc -l)
+  if [ $NFILES -eq 0 ]; then
+    echo "there are no .$1 files to convert!"
+    exit 1
+  fi
+  echo "your .$1 files will be converted!"
+  echo " "
+  for fname in *.$1
+  do
+    F=$(basename $fname .$1)
+    mv $F.$1 $F.txt
+  done
+fi
+for fname in *.txt
+do
+  echo $fname
+  cp $fname archived/$fname
+  NPOINTS=$(head -n 3 $fname | tail -n 1 | awk '{print $9}')
+  echo $NPOINTS
+  head -n $((NPOINTS + 4)) $fname | tail -n $NPOINTS | awk '{print $1 ",", $3}' > processed/$fname
+  rm $fname
+done

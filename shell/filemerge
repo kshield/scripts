@@ -1,0 +1,24 @@
+#!/bin/bash
+if [ "$#" -gt 2 ]; then
+  echo "ERROR: Too many arguments! usage: filemerge.sh filestem fileextention (optional, * is default)"
+  exit 1
+fi
+if [ "$#" == 2 ]; then
+  EXT=$2
+  STEM=$1
+elif [ "$#" == 1 ]; then
+  EXT="*"
+  STEM=$1
+else
+  echo "ERROR: Provide a filename stem! usage: filemerge.sh filestem fileextention (optional, * is default)"
+  exit 1
+fi
+NFILES=$(ls $STEM*.$EXT | wc -l)
+if [ $NFILES -eq 0 ]; then
+  echo "there are no files to merge!"
+  exit 1
+fi
+for fname in "$STEM*.$EXT"
+do
+  cat $fname >> $STEM.merged
+done
