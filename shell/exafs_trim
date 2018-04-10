@@ -1,0 +1,47 @@
+#!/bin/bash
+# JAR Nov 09, 2017 - this script removes the final points from space-separated SSRL exafs files (BL 11-2)
+# a backup of the original files will be copied to the "archived" directory, and the processed files will be copied to the "processed" directory
+# the first argument is the number of lines to strip, the optional second argument specifies the file extention to process (default is dat)
+[ ! -d archived ] && mkdir archived
+[ ! -d processed ] && mkdir processed
+if [ "$#" -gt 2 ]; then
+  echo "ERROR: Too many arguments! usage: strip_header.sh fileextention (optional, dat is default)"
+  exit 1
+fi
+if [ "$#" == 2 ]; then
+  EXT=$2
+else
+  EXT="dat"
+fi
+
+NFILES=$(ls *.$EXT | wc -l)
+if [ $NFILES -eq 0 ]; then
+  echo "there are no .$EXT files to convert!"
+  exit 1
+fi
+echo " "
+echo "your .$EXT files will be converted!"
+echo " "
+echo "the final $1 row(s) will be removed"
+echo " "
+for fname in *.$EXT
+do
+  F=$(basename $fname .$EXT)
+  mv $F.$EXT $F.dat
+done
+
+NDEL=$1
+
+for fname in *.dat
+do
+  #echo $fname
+  cp $fname archived/$fname
+  NLINES=$(wc -l $fname | awk '{print $1}')
+  NPOINTS=$(head -n 3 $fname | tail -n 1 | awk '{print $2}')
+  head -n 2 $fname > processed/$fname
+  head -n 3 $fname | tail -n 1 | awk '{print $1, '$NPOINTS-$NDEL', $3, $4}' >> processed/$fname
+  head -n $(($NLINES - $NDEL)) $fname | tail -n $(($NLINES - $NDEL - 3)) >> processed/$fname
+  rm $fname
+  #echo $NPOINTS
+  
+done

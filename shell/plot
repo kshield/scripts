@@ -18,7 +18,7 @@ if(-e $GNUPLOT_FILE) then
 	rm -f $GNUPLOT_FILE
 endif
 # make the file 
- echo "set term xquarts persist" >> $GNUPLOT_FILE
+ echo "set term aqua persist" >> $GNUPLOT_FILE
  echo "plot '"$DAT_FILE"' using "$2":"$3" w l"  >> $GNUPLOT_FILE
 # run the file
  gnuplot $GNUPLOT_FILE

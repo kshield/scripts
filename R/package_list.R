@@ -1,0 +1,13 @@
+install.packages("ggplot2")
+install.packages("plyr")
+install.packages("superheat")
+install.packages("reshape2")
+install.packages("xlsx")
+install.packages("multcomp")
+install.packages("outliers")
+
+source("https://bioconductor.org/biocLite.R")
+biocLite()
+biocLite(c("flowPloidy","ggcyto","flowCore"))
+biocLite("flowViz")
+biocLite("cytofWorkflow")
