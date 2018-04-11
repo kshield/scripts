@@ -5,6 +5,7 @@ install.packages("reshape2")
 install.packages("xlsx")
 install.packages("multcomp")
 install.packages("outliers")
+install.packages("fitdistrplus")
 
 source("https://bioconductor.org/biocLite.R")
 biocLite()
