@@ -6,6 +6,8 @@ install.packages("xlsx")
 install.packages("multcomp")
 install.packages("outliers")
 install.packages("fitdistrplus")
+install.packages("devtools")
+devtools::install_github("ropensci/plotly")
 
 source("https://bioconductor.org/biocLite.R")
 biocLite()
