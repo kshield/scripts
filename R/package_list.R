@@ -10,6 +10,7 @@ install.packages("readxl")
 install.packages("fitdistrplus")
 install.packages("devtools")
 devtools::install_github("ropensci/plotly")
+install.packages("clusterSim")
 
 source("https://bioconductor.org/biocLite.R")
 biocLite()
