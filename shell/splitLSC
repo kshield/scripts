@@ -1,0 +1,41 @@
+#!/bin/bash
+# JAR May 15, 2017 - this script removes header lines from text files
+# a backup of the original files will be copied to the "archived" directory, and the processed files will be copied to the "processed" directory
+# the first argument is the number of lines to strip, and the optional second argument specifies the file extention to process (default is txt)
+#[ ! -d archived ] && mkdir archived
+#[ ! -d processed ] && mkdir processed
+
+mkdir splitfiles
+
+HEAD=$(head -n 6 $1 | tail -n 1)
+
+echo $HEAD
+
+cp $1 $1.working
+NLINES=$(wc -l $1 | awk '{print $1}')
+tail -n $(($NLINES-7)) $1 > $1.working
+
+nsplits=$(awk '/Missing/' $1.working | awk $'{print $3}' | wc -l)
+echo $nsplits
+rm splits.temp
+for split in {1..4}
+do
+  spl=$(awk '/Missing/' $1.working | head -n $split | tail -n 1 | awk $'{print $3}' | awk -F "." $'{print $1}')
+  echo $HEAD > splitfiles/$1.$split
+  echo $spl >> splits.temp
+  head -n 1 $1.working | awk -F  "," $'{print $1}' > fline.temp
+  echo $(head -n $split splits.temp | tail -n 1 - $(cat fline.temp))
+  #echo $lines
+
+done
+
+
+
+# for line in {1..30}
+# do
+#   MISS=$(head -n $line $1.working | tail -n 1 | awk '{print $1}')
+#   awk '{if ($MISS == 'Missing')
+#     echo 'YAY'
+#   else
+#     echo 'BOO'}'
+# done
