@@ -9,27 +9,24 @@ mkdir splitfiles
 
 HEAD=$(head -n 6 $1 | tail -n 1)
 
-echo $HEAD
-
 cp $1 $1.working
 NLINES=$(wc -l $1 | awk '{print $1}')
 tail -n $(($NLINES-7)) $1 > $1.working
 
 nsplits=$(awk '/Missing/' $1.working | awk $'{print $3}' | wc -l)
-echo $nsplits
-rm splits.temp
 for split in {1..4}
 do
-  spl=$(awk '/Missing/' $1.working | head -n $split | tail -n 1 | awk $'{print $3}' | awk -F "." $'{print $1}')
+  spl=$(awk '/Missing/' $1 | head -n $split | tail -n 1 | awk $'{print $3}' | awk -F "." $'{print $1}')
   echo $HEAD > splitfiles/$1.$split
   echo $spl >> splits.temp
   head -n 1 $1.working | awk -F  "," $'{print $1}' > fline.temp
-  echo $(head -n $split splits.temp | tail -n 1 - $(cat fline.temp))
-  #echo $lines
-
+  ncopylines=$(($(head -n $split splits.temp | tail -n 1) - $(cat fline.temp)))
+  head -n $ncopylines $1.working >> splitfiles/$1.$split
+  tail -n +$(($ncopylines+2)) $1.working > $1.working.temp
+  mv $1.working.temp $1.working
 done
-
-
+rm $1.working
+rm *.temp
 
 # for line in {1..30}
 # do
