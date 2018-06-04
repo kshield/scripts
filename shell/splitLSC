@@ -1,12 +1,15 @@
 #!/bin/bash
-# JAR May 15, 2017 - this script removes header lines from text files
-# a backup of the original files will be copied to the "archived" directory, and the processed files will be copied to the "processed" directory
-# the first argument is the number of lines to strip, and the optional second argument specifies the file extention to process (default is txt)
-#[ ! -d archived ] && mkdir archived
-#[ ! -d processed ] && mkdir processed
+# JAR Jun 4, 2018 - this script processes LSC flag 10 output files, and splits
+# the csv into separate files, all containing the header line, every time a
+# missing vial is encountered.
 
-# make a new folder
-mkdir splitfiles
+if [ "$#" != 1 ]; then
+  echo "ERROR: Incorrect number of arguments! usage: splitLSC filename"
+  exit 1
+fi
+
+# make a new folder (if it doesn't exist)
+[ ! -d splitfiles ] && mkdir splitfiles
 
 # select the 6th line of the file ($1 is the first argument for the script, the filename), make it the variable HEAD
 HEAD=$(head -n 6 $1 | tail -n 1)
