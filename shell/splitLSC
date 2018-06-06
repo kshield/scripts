@@ -1,7 +1,9 @@
-#!/bin/bash
+#!\bin\bash
 # JAR Jun 4, 2018 - this script processes LSC flag 10 output files, and splits
 # the csv into separate files, all containing the header line, every time a
 # missing vial is encountered.
+
+#Kathy's commment
 
 if [ "$#" != 1 ]; then
   echo "ERROR: Incorrect number of arguments! usage: splitLSC filename"
