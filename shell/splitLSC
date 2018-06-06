@@ -35,7 +35,7 @@ do
   spl=$(awk '/Missing/' $1 | head -n $split | tail -n 1 | awk $'{print $3}' | awk -F "." $'{print $1}')
 
   # make a new file in the folder "splitfiles" that starts with the header line, indexing by number
-  echo $HEAD > splitfiles/$1.$split
+  echo $HEAD > splitfiles/$split.$1
 
   # write spl to splits.temp, the double arrow means "append to existing file"
   echo $spl >> splits.temp
@@ -47,7 +47,7 @@ do
   ncopylines=$(($(head -n $split splits.temp | tail -n 1) - $(cat fline.temp)))
 
   # copy those first lines and append them to the new file in splitfiles
-  head -n $ncopylines $1.working >> splitfiles/$1.$split
+  head -n $ncopylines $1.working >> splitfiles/$split.$1
 
   # take the end of the working file, starting at the number of copied lines + 2, and overwrite the working file (ends up deleting the copied lines)
   tail -n +$(($ncopylines+2)) $1.working > $1.working.temp
