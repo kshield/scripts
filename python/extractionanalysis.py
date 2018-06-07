@@ -1,9 +1,10 @@
+#!/c/Users/Public/python
 # -*- coding: utf-8 -*-
-"""
-Created on Tue May  8 13:40:20 2018
+#"""
+#Created on Tue May  8 13:40:20 2018
 
-@author: Kathy Shield
-"""
+#@author: Kathy Shield
+#"""
 
 
 # coding: utf-8
@@ -13,7 +14,7 @@ Created on Tue May  8 13:40:20 2018
 # This includes packages
 
 # In[55]:
-
+print('running')
 
 import pandas as pd
 import numpy as np
@@ -22,7 +23,6 @@ warnings.filterwarnings("ignore")
 import datetime
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-
 
 # And the data.
 #
