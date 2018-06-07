@@ -1,3 +1,10 @@
+import pandas as pd
+import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
+import datetime
+
+
 def expertableanalysis():
     # Imports the data
     my_data = datasplit = pd.read_csv(filename)

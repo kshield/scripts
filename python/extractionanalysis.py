@@ -27,27 +27,8 @@ import matplotlib.pyplot as plt
 
 # Asks for the number of data files there are.
 # This will be the number of skipped vials +1.
-howmanyfiles = input('How many files are there?')
 
-# If there is only one file, use filename = "ExperTable.csv"
-if howmanyfiles == '1':
-    print('quit now')
-    filename = 'ExperTable.csv'
-    print(filename)
-    analysis()
-
-# If there is more than one file, first use splitLSC.sh to split properly.
-# Everything else is a loop through all the files.
-else:
-    for value in range(int(howmanyfiles)):
-        # Filenames are in this format when they come out of splitLSC.sh
-        filename = str(value+1)+'.ExperTable.csv'
-        print (filename)
-        analysis()
-        print(value)
-
-
-def analysis():
+def expertableanalysis():
     # Imports the data
     my_data = datasplit = pd.read_csv(filename)
 
@@ -67,7 +48,7 @@ def analysis():
      # The aq. concentrations will need to be inputted at the start of the program
 
     aqueous_concentrations = input('Please input the aqeous concentrations (mM): ')
-    aqueous_concentrations = [int(x) for x in aqueous_concentrations.split(',')]
+    aqueous_concentrations = [float(x) for x in aqueous_concentrations.split(',')]
     aqueous_concentrations = pd.Series(aqueous_concentrations).values
     print (aqueous_concentrations)
 
@@ -78,18 +59,18 @@ def analysis():
     # # - the org. ligand & concentration
     #
      #isotope
-    isotope = input('What isotope?')
+    isotope = input('What isotope? ')
     datasplit_aqueous.loc[:,'Isotope'] = isotope
     print(datasplit_aqueous)
     #
     #ligands
-    aqueous_ligand = input('What was the aqueous ligand?')
-    organic_ligand = input('What was the organic ligand?')
+    aqueous_ligand = input('What was the aqueous ligand? ')
+    organic_ligand = input('What was the organic ligand? ')
     datasplit_aqueous.loc[:,'Aq_Ligand'] = aqueous_ligand
     datasplit_organic.loc[:,'Org_Ligand'] = organic_ligand
     #
     #Concentrations
-    organic_concentration = input('What was the organic concentration (M)?')
+    organic_concentration = input('What was the organic concentration (M)? ')
     datasplit_organic.loc[:,'Org_Conc (M)'] = organic_concentration
     #
     datasplit_aqueous['Aq_Conc (mM)'] = aqueous_concentrations
@@ -148,13 +129,32 @@ def analysis():
     print(datamerge)
     #
 
-    # plt.plot(aqueous_concentrations,extractionpercent,'bo')
+    #plt.plot(aqueous_concentrations,extractionpercent,'bo')
     # plt.xscale('log')
     # plt.title('HDEHP Extracts Gd Down to 2.5 mM')
     # plt.xlabel('HDEHP Concentration (M)')
     # plt.ylabel('% Extraction')
     # plt.grid(True)
-    # plt.savefig(date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.png')
+    #plt.savefig(date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.png')
     # plt.show()
     #export the data file as a CSV
     datamerge.to_csv(date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.csv')
+
+
+howmanyfiles = input('How many files are there? ')
+
+# If there is only one file, use filename = "ExperTable.csv"
+if howmanyfiles == '1':
+    filename = 'ExperTable.csv'
+    print(filename)
+    expertableanalysis()
+
+# If there is more than one file, first use splitLSC.sh to split properly.
+# Everything else is a loop through all the files.
+else:
+    for value in range(int(howmanyfiles)):
+        # Filenames are in this format when they come out of splitLSC.sh
+        filename = str(value+1)+'.ExperTable.csv'
+        print (filename)
+        expertableanalysis()
+        print(value)
