@@ -1,14 +1,15 @@
 #!/c/Users/Public/python
-
 # -*- coding: utf-8 -*-
 #"""
 #Created on Tue May  8 13:40:20 2018
-
 #@author: Kathy Shield
 #"""
 
-
-# coding: utf-8
+# KMS May 8 2018. This script imports csv files from either the LSC output directly
+# or the splitLSC.sh outputs. It accepts user inputs about the variables and saves
+# the data into individual files for each experiment and
+# (eventually) into a massive dataframe
+# with all the data from all extraction experiments performed by the user.
 
 # First, import the things you need.
 
@@ -61,39 +62,23 @@ def expertableanalysis():
 
 
     def aqueous_varies():
+        # Input
+        aqueous_ligand = input('What were the aqueous ligands? (provide ALL CAPS 3-4 letter abbreviations): ')
+        datasplit_aqueous['Aq_Ligand'] = aqueous_ligand
 
     def aqueous_constant():
+        # Input
+        aqueous_ligand = input('What was the aqueous ligand? ')
+        # Fill every row in this newly named column with the inputted value.
+        datasplit_aqueous.loc[:,'Aq_Ligand'] = aqueous_ligand
 
     def aqueous_concentration_varies():
-    # You have three chances to provide the right input (y/n)
-        #for retry in range(3):
-            # Determine whether or not the variable changes over the series
-        #    aqueous_concentration_varies = input('Does the aqueous concentration change over the series? (y/n): ')
-
-            # If the concentration changes...
-        #    if aqueous_concentration_varies == 'y':
         aqueous_concentrations = input('Please input the aqueous concentrations (mM): ')
-        # Convert the string into float values (allows for decimals)
+        # Convert the string into float values (allows for decimals; necessary for numerical entries)
         aqueous_concentrations = [float(x) for x in aqueous_concentrations.split(',')]
         # Convert the floats into a series of values in pandas.
         aqueous_concentrations = pd.Series(aqueous_concentrations).values
-        # Put the series into the datasplit table
         datasplit_aqueous['Aq_Conc (mM)'] = aqueous_concentrations
-        #        break
-            # If the concentration is constant...
-            # Same thing as above but with only one value in all rows
-        #    elif aqueous_concentration_varies == 'n':
-        #        aqueous_concentrations = input('Please input the aqueous concentration (mM): ')
-        #        aqueous_concentrations = float(aqueous_concentrations)
-        #        datasplit_aqueous.loc[:,'Aq_Conc (mM)'] = aqueous_concentrations
-        #        break
-            # If the input is not 'y' or 'n', give an error
-        #    else:
-        #        print ('Error: Input must be "y" or "n".')
-        # If the input is not 'y' or 'n' too many (3) times, quit the program.
-        #else:
-        #    print ('Error: Too many false inputs. Please try again.')
-        #    quit()
 
     def aqueous_concentration_constant():
         aqueous_concentrations = input('Please input the aqueous concentration (mM): ')
@@ -105,16 +90,32 @@ def expertableanalysis():
     def pH_constant():
 
     def organic_ligand_varies():
+        organic_ligand = input("What were the organic ligands? (Input in ALL CAPS): ")
+        datasplit_organic['Org_Ligand'] = organic_ligand
 
     def organic_ligand_constant():
+        organic_ligand = input('What was the organic ligand? ')
+        datasplit_organic.loc[:,'Org_Ligand (M)'] = organic_ligand
 
     def organic_concentration_varies():
+        organic_concentrations = input ('Please input the organic concentrations (M): ')
+        organic_concentrations = [float(x) for x in organic_concentrations.split(',')]
+        organic_concentrations = pd.Series(organic_concentrations).values
+        datasplit_organic['Org_Ligand (M)'] = organic_concentrations
 
     def organic_concentration_constant():
+        organic_concentrations = input('What was the organic concentration (M)? ')
+        datasplit_organic.loc[:,'Org_Conc (M)'] = organic_concentrations
 
     def metal_varies():
+        isotope = input("What were the isotopes? ")
+        isotope = pd.Series(isotope).values
+        datasplit_aqueous['Isotope'] = isotope
+        datasplit_organic['Isotope'] = isotope
 
     def metal_constant():
+        isotope = input('What isotope? ')
+        datasplit_aqueous.loc[:,'Isotope'] = isotope
 
     def buffer_varies():
 
@@ -217,48 +218,26 @@ def expertableanalysis():
             buffer_constant()
             buffer_concentration_varies()
             break
+        else:
+            print("Error: That isn't one of the accepted inputs.")
     else:
-        print("Error: That isn't one of the accepted inputs.")
+        print("Error: Too many wrong inputs.")
 
-    # The aq. concentrations will need to be inputted at the start of the program
-
-    # aqueous_concentrations = input('Please input the aqeous concentrations (mM): ')
-    # aqueous_concentrations = [float(x) for x in aqueous_concentrations.split(',')]
-    # aqueous_concentrations = pd.Series(aqueous_concentrations).values
-    # print (aqueous_concentrations)
-
-
-    # Add other information to the appropriate tables (to make future data analysis super easy) including:
-    # # - the isotope
-    # # - the aq. ligand & concentration
-    # # - the org. ligand & concentration
-    #
-     #isotope
-    isotope = input('What isotope? ')
-    datasplit_aqueous.loc[:,'Isotope'] = isotope
-    print(datasplit_aqueous)
-    #
-    #ligands
-    aqueous_ligand = input('What was the aqueous ligand? ')
-    organic_ligand = input('What was the organic ligand? ')
-    datasplit_aqueous.loc[:,'Aq_Ligand'] = aqueous_ligand
-    datasplit_organic.loc[:,'Org_Ligand'] = organic_ligand
-    #
-    #Concentrations
-    organic_concentrations = input('What was the organic concentration (M)? ')
-    datasplit_organic.loc[:,'Org_Conc (M)'] = organic_concentrations
-    #
-    datasplit_aqueous['Aq_Conc (mM)'] = aqueous_concentrations
-    #
-    print(datasplit_aqueous)
-    print(datasplit_organic)
 
     datamerge["AqCPMA"] = datasplit_aqueous.CPMA
     datamerge["OrgCPMA"] = datasplit_organic.CPMA
-    #
+
     # change the CPM values to adjust to 100 uL volumes (CPMA = CPM/100uL)
-    # datasplit_aqueous.loc[:,'CPMA'] /= 1
-    datasplit_organic.loc[:,'CPMA'] /= 2
+    volumeadjust = input('Was the aqueous aliquot 100uL and the organic aliquot 200 uL? (y/n): ')
+    if volumeadjust == 'y':
+        datasplit_organic.loc[:,'CPMA'] /= 2
+    if volumeadjust =='n':
+        organicvolume = input('What was the organic aliquot volume? (input in uL with no units): ')
+        organicvolume = float(organicvolume)
+        datasplit_organic.loc[:,'CPMA'] /= organicvolume/100
+        aqueousvolume = input('What was the aqueous aliquot volume? (provide in uL with no units): ')
+        aqueousvolume = float(aqueousvolume)
+        datasplit_aqueous.loc[:,'CPMA'] /= organicvolume/100
     #
 
     print(datamerge)
