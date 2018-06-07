@@ -42,15 +42,190 @@ def expertableanalysis():
     datasplit_aqueous = datasplit[datasplit['S#']%2 ==0]
     datasplit_organic = datasplit[datasplit['S#']%2!=0]
 
+    # Reset the indices so they are the same for each table (row 0 aq = row 0 org)
     datasplit_aqueous.reset_index(drop=True, inplace=True)
     datasplit_organic.reset_index(drop=True, inplace=True)
 
-     # The aq. concentrations will need to be inputted at the start of the program
+    # # Determine which variables have changed.
+    # pH_varies = input('Does the pH change over the series? (y/n): ')
+    # aqueous_concentration_varies = input('Does the aqueous concentration change over the series? (y/n): ')
+    # aqueous_ligand_varies = input('Does the aqueous ligand change over the series? (y/n): ')
+    # metal_varies = input('Does the metal change over the series? (y/n): ')
+    # metal_concentration_varies = input('Does the metal concentration change over the series? (y/n): ')
+    # organic_ligand_varies = input('Does the organic ligand change over the series? (y/n): ')
+    # organic_concentration_varies = input('Does the organic concentration change over the series? (y/n): ')
+    # buffer_varies = input('Does the buffer change over the series? (y/n): ')
+    # buffer_concentration_varies = input('Does the buffer concentration change over the series? (y/n): ')
 
-    aqueous_concentrations = input('Please input the aqeous concentrations (mM): ')
-    aqueous_concentrations = [float(x) for x in aqueous_concentrations.split(',')]
-    aqueous_concentrations = pd.Series(aqueous_concentrations).values
-    print (aqueous_concentrations)
+    # For each variable, get the value(s) for the series
+
+
+    def aqueous_varies():
+
+    def aqueous_constant():
+
+    def aqueous_concentration_varies():
+    # You have three chances to provide the right input (y/n)
+        #for retry in range(3):
+            # Determine whether or not the variable changes over the series
+        #    aqueous_concentration_varies = input('Does the aqueous concentration change over the series? (y/n): ')
+
+            # If the concentration changes...
+        #    if aqueous_concentration_varies == 'y':
+        aqueous_concentrations = input('Please input the aqueous concentrations (mM): ')
+        # Convert the string into float values (allows for decimals)
+        aqueous_concentrations = [float(x) for x in aqueous_concentrations.split(',')]
+        # Convert the floats into a series of values in pandas.
+        aqueous_concentrations = pd.Series(aqueous_concentrations).values
+        # Put the series into the datasplit table
+        datasplit_aqueous['Aq_Conc (mM)'] = aqueous_concentrations
+        #        break
+            # If the concentration is constant...
+            # Same thing as above but with only one value in all rows
+        #    elif aqueous_concentration_varies == 'n':
+        #        aqueous_concentrations = input('Please input the aqueous concentration (mM): ')
+        #        aqueous_concentrations = float(aqueous_concentrations)
+        #        datasplit_aqueous.loc[:,'Aq_Conc (mM)'] = aqueous_concentrations
+        #        break
+            # If the input is not 'y' or 'n', give an error
+        #    else:
+        #        print ('Error: Input must be "y" or "n".')
+        # If the input is not 'y' or 'n' too many (3) times, quit the program.
+        #else:
+        #    print ('Error: Too many false inputs. Please try again.')
+        #    quit()
+
+    def aqueous_concentration_constant():
+        aqueous_concentrations = input('Please input the aqueous concentration (mM): ')
+        aqueous_concentrations = float(aqueous_concentrations)
+        datasplit_aqueous.loc[:,'Aq_Conc (mM)'] = aqueous_concentrations
+
+    def pH_varies():
+
+    def pH_constant():
+
+    def organic_ligand_varies():
+
+    def organic_ligand_constant():
+
+    def organic_concentration_varies():
+
+    def organic_concentration_constant():
+
+    def metal_varies():
+
+    def metal_constant():
+
+    def buffer_varies():
+
+    def buffer_constant():
+
+    def buffer_concentration_varies():
+
+    def buffer_concentration_constant():
+
+# ONLY ALLOWS FOR ONE VARIABLE PER EXPERIMENT. E.G. YOU CAN CHANGE THE LIGAND
+# CONCENTRATION --OR-- THE LIGAND ITSELF, NOT BOTH.
+# THIS ENABLES EASIER COMPARATIVE PLOTTING IN THE FUTURE
+    for retry in range(3):
+        varies = input ('What varies? PICK ONE: aql, aqcon, ph, orgl, orgcon, isotope, buffer, buffercon  > ')
+        if varies == 'aql':
+            print ('Okay! The aqueous ligand varies.')
+            aqueous_varies()
+            aqueous_concentration_constant()
+            pH_constant()
+            organic_ligand_constant()
+            organic_concentration_constant()
+            metal_constant()
+            buffer_constant()
+            buffer_concentration_constant()
+            break
+        elif varies == 'aqcon':
+            print('Okay! The concentration of the aqueous ligand varies.')
+            aqueous_constant()
+            aqueous_concentration_varies()
+            pH_constant()
+            organic_ligand_constant()
+            organic_concentration_constant()
+            metal_constant()
+            buffer_constant()
+            buffer_concentration_constant()
+            break
+        elif varies == 'pH':
+            print ('Okay. The starting pH is changing.')
+            aqueous_constant()
+            aqueous_concentration_constant()
+            pH_varies()
+            organic_ligand_constant()
+            organic_concentration_constant()
+            metal_constant()
+            buffer_constant()
+            buffer_concentration_constant()
+            break
+        elif varies == "orgl":
+            print ('Okay, the organic ligand varies.')
+            aqueous_constant()
+            aqueous_concentration_constant()
+            pH_constant()
+            organic_ligand_varies()
+            organic_concentration_constant()
+            metal_constant()
+            buffer_constant()
+            buffer_concentration_constant()
+            break
+        elif varies == 'orgconc':
+            print ('Okay! The concentration of the organic ligand varies.')
+            aqueous_constant()
+            aqueous_concentration_constant()
+            pH_constant()
+            organic_ligand_constant()
+            organic_concentration_varies()
+            metal_constant()
+            buffer_constant()
+            buffer_concentration_constant()
+            break
+        elif varies == "isotope":
+            print ('Got it. The metal is changing.')
+            aqueous_constant()
+            aqueous_concentration_constant()
+            pH_constant()
+            organic_ligand_constant()
+            organic_concentration_constant()
+            metal_varies()
+            buffer_constant()
+            buffer_concentration_constant()
+            break
+        elif varies == 'buffer':
+            print ('Sure thing. The buffer is different.')
+            aqueous_constant()
+            aqueous_concentration_constant()
+            pH_constant()
+            organic_ligand_constant()
+            organic_concentration_constant()
+            metal_constant()
+            buffer_varies()
+            buffer_concentration_constant()
+            break
+        elif varies == 'buffercon':
+            print ('Okie dokes. The buffer concentration changes.')
+            aqueous_constant()
+            aqueous_concentration_constant()
+            pH_constant()
+            organic_ligand_constant()
+            organic_concentration_constant()
+            metal_constant()
+            buffer_constant()
+            buffer_concentration_varies()
+            break
+    else:
+        print("Error: That isn't one of the accepted inputs.")
+
+    # The aq. concentrations will need to be inputted at the start of the program
+
+    # aqueous_concentrations = input('Please input the aqeous concentrations (mM): ')
+    # aqueous_concentrations = [float(x) for x in aqueous_concentrations.split(',')]
+    # aqueous_concentrations = pd.Series(aqueous_concentrations).values
+    # print (aqueous_concentrations)
 
 
     # Add other information to the appropriate tables (to make future data analysis super easy) including:
@@ -70,8 +245,8 @@ def expertableanalysis():
     datasplit_organic.loc[:,'Org_Ligand'] = organic_ligand
     #
     #Concentrations
-    organic_concentration = input('What was the organic concentration (M)? ')
-    datasplit_organic.loc[:,'Org_Conc (M)'] = organic_concentration
+    organic_concentrations = input('What was the organic concentration (M)? ')
+    datasplit_organic.loc[:,'Org_Conc (M)'] = organic_concentrations
     #
     datasplit_aqueous['Aq_Conc (mM)'] = aqueous_concentrations
     #
