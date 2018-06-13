@@ -69,6 +69,9 @@ def expertableanalysis():
     def aqueous_constant():
         # Input
         aqueous_ligand = input('What was the aqueous ligand? ')
+        #    if aqueous_ligand = 'none':
+        #        datasplit_aqueous.loc[:,'Aq_Conc (mM)'] = 0
+        #        break
         # Fill every row in this newly named column with the inputted value.
         datasplit_aqueous.loc[:,'Aq_Ligand'] = aqueous_ligand
 
@@ -101,13 +104,13 @@ def expertableanalysis():
 
     def organic_ligand_constant():
         organic_ligand = input('What was the organic extractant? (Input in ALL CAPS): ')
-        datasplit_organic.loc[:,'Org_Ligand (M)'] = organic_ligand
+        datasplit_organic.loc[:,'Org_Ligand'] = organic_ligand
 
     def organic_concentration_varies():
         organic_concentrations = input ('Please input the organic concentrations (M): ')
         organic_concentrations = [float(x) for x in organic_concentrations.split(',')]
         organic_concentrations = pd.Series(organic_concentrations).values
-        datasplit_organic['Org_Ligand (M)'] = organic_concentrations
+        datasplit_organic['Org_Conc (M)'] = organic_concentrations
 
     def organic_concentration_constant():
         organic_concentrations = input('What was the organic concentration (M)? ')
@@ -129,7 +132,7 @@ def expertableanalysis():
 
     def buffer_constant():
         buffer = input('What was the buffer? ')
-        datasplit_organic.loc[:,'Buffer'] = buffer
+        datasplit_aqueous.loc[:,'Buffer'] = buffer
 
     def buffer_concentration_varies():
         buffer_concentrations = input ('Please input the buffer concentrations (mM): ')
@@ -139,13 +142,13 @@ def expertableanalysis():
 
     def buffer_concentration_constant():
         buffer_concentrations = input('What was the buffer concentration (mM)? ')
-        datasplit_buffer.loc[:,'Buffer (mM)'] = buffer_concentrations
+        datasplit_aqueous.loc[:,'Buffer (mM)'] = buffer_concentrations
 
 # ONLY ALLOWS FOR ONE VARIABLE PER EXPERIMENT. E.G. YOU CAN CHANGE THE LIGAND
 # CONCENTRATION --OR-- THE LIGAND ITSELF, NOT BOTH.
 # THIS ENABLES EASIER COMPARATIVE PLOTTING IN THE FUTURE
     for retry in range(3):
-        varies = input ('What varies? PICK ONE: aql, aqcon, ph, orgl, orgcon, isotope, buffer, buffercon  > ')
+        varies = input ('What varies? PICK ONE: aql, aqconc, ph, orgl, orgconc, isotope, buffer, bufferconc  > ')
         if varies == 'aql':
             print ('Okay! The aqueous ligand varies.')
             aqueous_varies()
@@ -157,7 +160,7 @@ def expertableanalysis():
             buffer_constant()
             buffer_concentration_constant()
             break
-        elif varies == 'aqcon':
+        elif varies == 'aqconc':
             print('Okay! The concentration of the aqueous ligand varies.')
             aqueous_constant()
             aqueous_concentration_varies()
@@ -168,7 +171,7 @@ def expertableanalysis():
             buffer_constant()
             buffer_concentration_constant()
             break
-        elif varies == 'pH':
+        elif varies == 'ph':
             print ('Okay. The starting pH is changing.')
             aqueous_constant()
             aqueous_concentration_constant()
@@ -223,7 +226,7 @@ def expertableanalysis():
             buffer_varies()
             buffer_concentration_constant()
             break
-        elif varies == 'buffercon':
+        elif varies == 'bufferconc':
             print ('Okie dokes. The buffer concentration changes.')
             aqueous_constant()
             aqueous_concentration_constant()
@@ -298,7 +301,7 @@ def expertableanalysis():
     #
     # # ### Time to plot this
     #
-    date = datetime.datetime.strptime(datamerge.loc[0,'DATE'],'%m/%d/%Y').strftime('%Y%m%d')
+    date = datetime.datetime.strptime(datamerge.loc[0,'Date'],'%m/%d/%Y').strftime('%Y%m%d')
     #
     print(datamerge)
     #
@@ -312,6 +315,9 @@ def expertableanalysis():
     #plt.savefig(date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.png')
     # plt.show()
     #export the data file as a CSV
+    isotope = datamerge.Isotope.ix[0]
+    aqueous_ligand = datamerge.Ligand[0]
+    organic_ligand = datamerge.Extractant[0]
     datamerge.to_csv(date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.csv')
 
 
@@ -319,7 +325,7 @@ howmanyfiles = input('How many files are there? ')
 
 # If there is only one file, use filename = "ExperTable.csv"
 if howmanyfiles == '1':
-    filename = 'ExperTable.csv'
+    filename = '1.ExperTable.csv'
     print(filename)
     expertableanalysis()
 
