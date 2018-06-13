@@ -63,7 +63,7 @@ def expertableanalysis():
 
     def aqueous_varies():
         # Input
-        aqueous_ligand = input('What were the aqueous ligands? (provide ALL CAPS 3-4 letter abbreviations): ')
+        aqueous_ligand = input('What were the aqueous ligands? (provide ALL CAPS 3-4 letter abbreviations, comma separated): ')
         datasplit_aqueous['Aq_Ligand'] = aqueous_ligand
 
     def aqueous_constant():
@@ -73,7 +73,7 @@ def expertableanalysis():
         datasplit_aqueous.loc[:,'Aq_Ligand'] = aqueous_ligand
 
     def aqueous_concentration_varies():
-        aqueous_concentrations = input('Please input the aqueous concentrations (mM): ')
+        aqueous_concentrations = input('Please input the aqueous concentrations (mM), comma separated: ')
         # Convert the string into float values (allows for decimals; necessary for numerical entries)
         aqueous_concentrations = [float(x) for x in aqueous_concentrations.split(',')]
         # Convert the floats into a series of values in pandas.
@@ -86,15 +86,21 @@ def expertableanalysis():
         datasplit_aqueous.loc[:,'Aq_Conc (mM)'] = aqueous_concentrations
 
     def pH_varies():
+        ph = input('What were the starting pH values? (Input as comma separated numbers): ')
+        ph = [float(x) for x in ph.split(',')]
+        ph = pd.Series(ph).values
+        datasplit_aqueous['pH'] = ph
 
     def pH_constant():
+        ph = input('What was the starting pH? ')
+        datasplit_aqueous['pH'] = ph
 
     def organic_ligand_varies():
-        organic_ligand = input("What were the organic ligands? (Input in ALL CAPS): ")
+        organic_ligand = input("What were the organic extractants? (Input in ALL CAPS, comma separated): ")
         datasplit_organic['Org_Ligand'] = organic_ligand
 
     def organic_ligand_constant():
-        organic_ligand = input('What was the organic ligand? ')
+        organic_ligand = input('What was the organic extractant? (Input in ALL CAPS): ')
         datasplit_organic.loc[:,'Org_Ligand (M)'] = organic_ligand
 
     def organic_concentration_varies():
@@ -102,8 +108,6 @@ def expertableanalysis():
         organic_concentrations = [float(x) for x in organic_concentrations.split(',')]
         organic_concentrations = pd.Series(organic_concentrations).values
         datasplit_organic['Org_Ligand (M)'] = organic_concentrations
-
-# random comment
 
     def organic_concentration_constant():
         organic_concentrations = input('What was the organic concentration (M)? ')
@@ -120,12 +124,22 @@ def expertableanalysis():
         datasplit_aqueous.loc[:,'Isotope'] = isotope
 
     def buffer_varies():
+        buffer = input("What were the buffers? (Input comma separated): ")
+        datasplit_aqueous['Buffer'] = buffer
 
     def buffer_constant():
+        buffer = input('What was the buffer? ')
+        datasplit_organic.loc[:,'Buffer'] = buffer
 
     def buffer_concentration_varies():
+        buffer_concentrations = input ('Please input the buffer concentrations (mM): ')
+        buffer_concentrations = [float(x) for x in buffer_concentrations.split(',')]
+        buffer_concentrations = pd.Series(buffer_concentrations).values
+        datasplit_aqueous['Buffer (mM)'] = buffer_concentrations
 
     def buffer_concentration_constant():
+        buffer_concentrations = input('What was the buffer concentration (mM)? ')
+        datasplit_buffer.loc[:,'Buffer (mM)'] = buffer_concentrations
 
 # ONLY ALLOWS FOR ONE VARIABLE PER EXPERIMENT. E.G. YOU CAN CHANGE THE LIGAND
 # CONCENTRATION --OR-- THE LIGAND ITSELF, NOT BOTH.
@@ -266,16 +280,20 @@ def expertableanalysis():
             #datasplit_organic.loc[organic,"CPMA"]/(datasplit_aqueous.loc[aqueous,"CPMA"]+datasplit_organic.loc[organic,"CPMA"])
     extractionpercent
 
-    datamerge['Ext%'] = extractionpercent
-    datamerge['AqS#'] = datasplit_aqueous['S#']
-    datamerge['OrgS#'] = datasplit_organic['S#']
-    datamerge['Count Time'] = datasplit_organic['Count Time']
-    datamerge['DATE'] = datasplit_aqueous.DATE
+    datamerge['Extraction %'] = extractionpercent
     datamerge['Isotope'] = datasplit_aqueous.Isotope
-    datamerge['AqL'] = datasplit_aqueous.Aq_Ligand
-    datamerge['AqLConc (mM)'] = datasplit_aqueous['Aq_Conc (mM)']
-    datamerge['OrgL'] = datasplit_organic.Org_Ligand
-    datamerge['OrgLConc (M)'] = datasplit_organic['Org_Conc (M)']
+    datamerge['Ligand'] = datasplit_aqueous.Aq_Ligand
+    datamerge['Ligand Concentration (mM)'] = datasplit_aqueous['Aq_Conc (mM)']
+    datamerge['Extractant'] = datasplit_organic.Org_Ligand
+    datamerge['Extractant Concentration (M)'] = datasplit_organic['Org_Conc (M)']
+    datamerge['Buffer'] = datasplit_aqueous.Buffer
+    datamerge['Buffer Concentration (mM)'] = datasplit_aqueous['Buffer (mM)']
+    datamerge['Initial pH'] = datasplit_aqueous.pH
+    datamerge['Aqueous LSC Vial'] = datasplit_aqueous['S#']
+    datamerge['Organic LSC Vial'] = datasplit_organic['S#']
+    datamerge['Count Time'] = datasplit_organic['Count Time']
+    datamerge['Date'] = datasplit_aqueous.DATE
+
     #
     #
     # # ### Time to plot this
