@@ -40,6 +40,8 @@ def expertableanalysis():
     datamerge = pd.DataFrame()
 
     # Separate the data into aqueous and organic tables
+    datamerge.reset_index(drop=True, inplace=True)
+
     datasplit_aqueous = datasplit[datasplit['S#']%2 ==0]
     datasplit_organic = datasplit[datasplit['S#']%2!=0]
 
@@ -318,7 +320,12 @@ def expertableanalysis():
     isotope = datamerge.Isotope.ix[0]
     aqueous_ligand = datamerge.Ligand[0]
     organic_ligand = datamerge.Extractant[0]
-    datamerge.to_csv(date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.csv')
+
+    path = '~/Desktop/Berkeley/AbergelGroup/Research/Extractions/'
+    datamerge.to_csv(path+date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.csv')
+    filename_datamerge = str(path)+str(date)+str(isotope)+'_'+str(aqueous_ligand)+'_'+str(organic_ligand)+'.csv'
+    print(filename_datamerge)
+
 
 
 howmanyfiles = input('How many files are there? ')
