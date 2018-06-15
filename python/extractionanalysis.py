@@ -42,8 +42,8 @@ def expertableanalysis():
     # Separate the data into aqueous and organic tables
     datamerge.reset_index(drop=True, inplace=True)
 
-    datasplit_aqueous = datasplit[datasplit['S#']%2 ==0]
-    datasplit_organic = datasplit[datasplit['S#']%2!=0]
+    datasplit_aqueous = datasplit.iloc[::2]
+    datasplit_organic = datasplit.iloc[1::2]
 
     # Reset the indices so they are the same for each table (row 0 aq = row 0 org)
     datasplit_aqueous.reset_index(drop=True, inplace=True)
