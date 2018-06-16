@@ -19,8 +19,9 @@ import numpy as np
 import warnings
 warnings.filterwarnings("ignore")
 import datetime
-import matplotlib as mpl
-import matplotlib.pyplot as plt
+import plotly as py
+import plotly.graph_objs as go
+py.tools.set_credentials_file(username = 'kshield', api_key = 'H9UX6nYroLdbt1W1pjgj')
 
 # And the data.
 #
@@ -149,8 +150,8 @@ def expertableanalysis():
 # ONLY ALLOWS FOR ONE VARIABLE PER EXPERIMENT. E.G. YOU CAN CHANGE THE LIGAND
 # CONCENTRATION --OR-- THE LIGAND ITSELF, NOT BOTH.
 # THIS ENABLES EASIER COMPARATIVE PLOTTING IN THE FUTURE
+    varies = input ('What varies? PICK ONE: aql, aqconc, ph, orgl, orgconc, isotope, buffer, bufferconc  > ')
     for retry in range(3):
-        varies = input ('What varies? PICK ONE: aql, aqconc, ph, orgl, orgconc, isotope, buffer, bufferconc  > ')
         if varies == 'aql':
             print ('Okay! The aqueous ligand varies.')
             aqueous_varies()
@@ -244,7 +245,6 @@ def expertableanalysis():
     else:
         print("Error: Too many wrong inputs.")
 
-
     datamerge["AqCPMA"] = datasplit_aqueous.CPMA
     datamerge["OrgCPMA"] = datasplit_organic.CPMA
 
@@ -259,32 +259,20 @@ def expertableanalysis():
         aqueousvolume = input('What was the aqueous aliquot volume? (provide in uL with no units): ')
         aqueousvolume = float(aqueousvolume)
         datasplit_aqueous.loc[:,'CPMA'] /= organicvolume/100
-    #
-
     print(datamerge)
-    #
     datasplit_aqueous = datasplit_aqueous.rename({'CPMA':'CPM'},axis='columns')
     datasplit_organic = datasplit_organic.rename({'CPMA':'CPM'},axis='columns')
-
-
     # Create two new variables as lists from the CPM values
     organicvalues = datasplit_organic["CPM"].values
     aqueousvalues = datasplit_aqueous["CPM"].values
-    # organicvalues.size
-
     datamerge["AqCPM"] = datasplit_aqueous.CPM
     datamerge["OrgCPM"] = datasplit_organic.CPM
-
     #
     # Solve for the % extraction
     # (% ext. = org. CPM/(org. CPM + aq CPM))
-
     extractionpercent=[]
     for line in range(0,organicvalues.size):
         extractionpercent.append(organicvalues[line]/(aqueousvalues[line]+organicvalues[line]))
-            #datasplit_organic.loc[organic,"CPMA"]/(datasplit_aqueous.loc[aqueous,"CPMA"]+datasplit_organic.loc[organic,"CPMA"])
-    extractionpercent
-
     datamerge['Extraction %'] = extractionpercent
     datamerge['Isotope'] = datasplit_aqueous.Isotope
     datamerge['Ligand'] = datasplit_aqueous.Aq_Ligand
@@ -298,16 +286,8 @@ def expertableanalysis():
     datamerge['Organic LSC Vial'] = datasplit_organic['S#']
     datamerge['Count Time'] = datasplit_organic['Count Time']
     datamerge['Date'] = datasplit_aqueous.DATE
-
-    #
-    #
-    # # ### Time to plot this
-    #
     date = datetime.datetime.strptime(datamerge.loc[0,'Date'],'%m/%d/%Y').strftime('%Y%m%d')
-    #
     print(datamerge)
-    #
-
     #plt.plot(aqueous_concentrations,extractionpercent,'bo')
     # plt.xscale('log')
     # plt.title('HDEHP Extracts Gd Down to 2.5 mM')
@@ -320,28 +300,77 @@ def expertableanalysis():
     isotope = datamerge.Isotope.ix[0]
     aqueous_ligand = datamerge.Ligand[0]
     organic_ligand = datamerge.Extractant[0]
-
-    path = '~/Desktop/Berkeley/AbergelGroup/Research/Extractions/'
+    path = '~/Desktop/Berkeley/AbergelGroup/Research/Extractions/Results/ProcessedDataFiles/'
     datamerge.to_csv(path+date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.csv')
     filename_datamerge = str(path)+str(date)+str(isotope)+'_'+str(aqueous_ligand)+'_'+str(organic_ligand)+'.csv'
     print(filename_datamerge)
 
+    if varies == 'aql':
+        dependentvariable = 'Ligand'
+    elif varies == 'aqconc':
+        dependentvariable = 'Ligand Concentration (mM)'
+    elif varies == 'ph':
+        dependentvariable = 'Initial pH'
+    elif varies == 'orgl':
+        dependentvariable = 'Extractant'
+    elif varies == 'orgconc':
+        dependentvariable = 'Extractant Concentration (M)'
+    elif varies == 'isotope':
+        dependentvariable = 'Isotope'
+    elif varies == 'buffer':
+        dependentvariable = 'Buffer'
+    elif varies == 'bufferconc':
+        dependentvariable = 'Buffer Concentration (mM)'
+
+    datan = pd.read_csv(filename_datamerge)
+    yvalues = datan['Extraction %'].tolist()
+    xvalues = datan[dependentvariable].tolist()
+    trace = go.Scatter(x = xvalues, y = yvalues, mode = 'markers')
+    allthedata.append(trace)
+
+    layout = go.Layout(
+        xaxis = dict(
+            type = 'log',
+            autorange = True,
+            domain = [0,1],
+            range = [-4,-2],
+            title = dependentvariable,
+            showgrid = True,
+            showline = True,
+            exponentformat = 'none',
+            #nticks = 5
+            tick0 = -4,
+            dtick = 1
+        ),
+        yaxis = dict(
+            type = 'linear',
+            autorange = False,
+            domain = [0,1],
+            range = [0,1],
+            title = 'Extraction Percent',
+            showgrid = True,
+            showline = True
+        ),
+        title='Gd153 Extraction into HDEHP with Varying Buffer Concentrations'
+    )
+    fig = go.Figure(data=allthedata, layout=layout)
+
+    py.offline.plot(fig, image = 'png', image_filename = str(path)+str(date)+str(isotope)+'_'+str(aqueous_ligand)+'_'+str(organic_ligand)+'.png')
 
 
 howmanyfiles = input('How many files are there? ')
+allthedata = []
 
 # If there is only one file, use filename = "ExperTable.csv"
-if howmanyfiles == '1':
-    filename = '1.ExperTable.csv'
-    print(filename)
-    expertableanalysis()
-
-# If there is more than one file, first use splitLSC.sh to split properly.
-# Everything else is a loop through all the files.
-else:
-    for value in range(int(howmanyfiles)):
+# if howmanyfiles == '1':
+#     filename = '1.ExperTable.csv'
+#     print(filename)
+#     expertableanalysis()
+#
+# # If there is more than one file, first use splitLSC.sh to split properly.
+# # Everything else is a loop through all the files.
+# else:
+for value in range(int(howmanyfiles)):
         # Filenames are in this format when they come out of splitLSC.sh
-        filename = str(value+1)+'.ExperTable.csv'
-        print (filename)
-        expertableanalysis()
-        print(value)
+    filename = str(value+1)+'.ExperTable.csv'
+    expertableanalysis()
