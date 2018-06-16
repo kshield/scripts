@@ -162,6 +162,8 @@ def expertableanalysis():
             metal_constant()
             buffer_constant()
             buffer_concentration_constant()
+            ligandtype = input('What class of Ligands were used? (Carboxylic Acids, HOPO Derivatives): ')
+            independentvariabletitle = 'Varying '+ligandtype
             break
         elif varies == 'aqconc':
             print('Okay! The concentration of the aqueous ligand varies.')
@@ -173,6 +175,7 @@ def expertableanalysis():
             metal_constant()
             buffer_constant()
             buffer_concentration_constant()
+            independentvariabletitle = aqueous_ligand
             break
         elif varies == 'ph':
             print ('Okay. The starting pH is changing.')
@@ -184,6 +187,7 @@ def expertableanalysis():
             metal_constant()
             buffer_constant()
             buffer_concentration_constant()
+            independentvariabletitle = 'Varying Initial pH'
             break
         elif varies == "orgl":
             print ('Okay, the organic ligand varies.')
@@ -195,6 +199,7 @@ def expertableanalysis():
             metal_constant()
             buffer_constant()
             buffer_concentration_constant()
+            independentvariabletitle = aqueous_ligand
             break
         elif varies == 'orgconc':
             print ('Okay! The concentration of the organic ligand varies.')
@@ -206,6 +211,7 @@ def expertableanalysis():
             metal_constant()
             buffer_constant()
             buffer_concentration_constant()
+            independentvariabletitle = organic_ligand
             break
         elif varies == "isotope":
             print ('Got it. The metal is changing.')
@@ -217,6 +223,7 @@ def expertableanalysis():
             metal_varies()
             buffer_constant()
             buffer_concentration_constant()
+            independentvariabletitle = aqueous_ligand
             break
         elif varies == 'buffer':
             print ('Sure thing. The buffer is different.')
@@ -228,6 +235,7 @@ def expertableanalysis():
             metal_constant()
             buffer_varies()
             buffer_concentration_constant()
+            independentvariabletitle = 'Various Buffers'
             break
         elif varies == 'bufferconc':
             print ('Okie dokes. The buffer concentration changes.')
@@ -239,6 +247,7 @@ def expertableanalysis():
             metal_constant()
             buffer_constant()
             buffer_concentration_varies()
+            independentvariabletitle = buffer
             break
         else:
             print("Error: That isn't one of the accepted inputs.")
@@ -306,25 +315,31 @@ def expertableanalysis():
     print(filename_datamerge)
 
     if varies == 'aql':
-        dependentvariable = 'Ligand'
+        independentvariable = 'Ligand'
+
     elif varies == 'aqconc':
-        dependentvariable = 'Ligand Concentration (mM)'
+        independentvariable = 'Ligand Concentration (mM)'
     elif varies == 'ph':
-        dependentvariable = 'Initial pH'
+        independentvariable = 'Initial pH'
     elif varies == 'orgl':
-        dependentvariable = 'Extractant'
+        independentvariable = 'Extractant'
+
     elif varies == 'orgconc':
-        dependentvariable = 'Extractant Concentration (M)'
+        independentvariable = 'Extractant Concentration (M)'
+
     elif varies == 'isotope':
-        dependentvariable = 'Isotope'
+        independentvariable = 'Isotope'
+
     elif varies == 'buffer':
-        dependentvariable = 'Buffer'
+        independentvariable = 'Buffer'
+
     elif varies == 'bufferconc':
-        dependentvariable = 'Buffer Concentration (mM)'
+        independentvariable = 'Buffer Concentration (mM)'
+
 
     datan = pd.read_csv(filename_datamerge)
     yvalues = datan['Extraction %'].tolist()
-    xvalues = datan[dependentvariable].tolist()
+    xvalues = datan[independentvariable].tolist()
     trace = go.Scatter(x = xvalues, y = yvalues, mode = 'markers')
     allthedata.append(trace)
 
@@ -334,7 +349,7 @@ def expertableanalysis():
             autorange = True,
             domain = [0,1],
             range = [-4,-2],
-            title = dependentvariable,
+            title = independentvariable,
             showgrid = True,
             showline = True,
             exponentformat = 'none',
@@ -351,7 +366,7 @@ def expertableanalysis():
             showgrid = True,
             showline = True
         ),
-        title='Gd153 Extraction into HDEHP with Varying Buffer Concentrations'
+        title=str(isotope)+' Extraction into '+str(organic_ligand)+' with '+str(independentvariabletitle)
     )
     fig = go.Figure(data=allthedata, layout=layout)
 
