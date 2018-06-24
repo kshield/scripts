@@ -14,6 +14,8 @@
 # First, import the things you need.
 
 # This includes packages
+import os
+import time
 import pandas as pd
 import numpy as np
 import warnings
@@ -39,6 +41,8 @@ def expertableanalysis():
 
     # Making the table to get filled with data and export
     datamerge = pd.DataFrame()
+
+    allthedataframe = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\Results\\ProcessedDataFiles','allthedata.csv'))
 
     # Separate the data into aqueous and organic tables
     datamerge.reset_index(drop=True, inplace=True)
@@ -77,6 +81,7 @@ def expertableanalysis():
         #        break
         # Fill every row in this newly named column with the inputted value.
         datasplit_aqueous.loc[:,'Aq_Ligand'] = aqueous_ligand
+        print(aqueous_ligand)
 
     def aqueous_concentration_varies():
         aqueous_concentrations = input('Please input the aqueous concentrations (mM), comma separated: ')
@@ -133,6 +138,7 @@ def expertableanalysis():
         buffer = input("What were the buffers? (Input comma separated): ")
         datasplit_aqueous['Buffer'] = buffer
 
+
     def buffer_constant():
         buffer = input('What was the buffer? ')
         datasplit_aqueous.loc[:,'Buffer'] = buffer
@@ -167,7 +173,7 @@ def expertableanalysis():
             break
         elif varies == 'aqconc':
             print('Okay! The concentration of the aqueous ligand varies.')
-            aqueous_constant()
+            aqueous_ligand = aqueous_constant()
             aqueous_concentration_varies()
             pH_constant()
             organic_ligand_constant()
@@ -191,7 +197,7 @@ def expertableanalysis():
             break
         elif varies == "orgl":
             print ('Okay, the organic ligand varies.')
-            aqueous_constant()
+            aqueous_ligand = aqueous_constant()
             aqueous_concentration_constant()
             pH_constant()
             organic_ligand_varies()
@@ -206,7 +212,7 @@ def expertableanalysis():
             aqueous_constant()
             aqueous_concentration_constant()
             pH_constant()
-            organic_ligand_constant()
+            organic_ligand = organic_ligand_constant()
             organic_concentration_varies()
             metal_constant()
             buffer_constant()
@@ -215,7 +221,7 @@ def expertableanalysis():
             break
         elif varies == "isotope":
             print ('Got it. The metal is changing.')
-            aqueous_constant()
+            aqueous_ligand = aqueous_constant()
             aqueous_concentration_constant()
             pH_constant()
             organic_ligand_constant()
@@ -245,7 +251,7 @@ def expertableanalysis():
             organic_ligand_constant()
             organic_concentration_constant()
             metal_constant()
-            buffer_constant()
+            buffer = buffer_constant()
             buffer_concentration_varies()
             independentvariabletitle = buffer
             break
@@ -309,10 +315,16 @@ def expertableanalysis():
     isotope = datamerge.Isotope.ix[0]
     aqueous_ligand = datamerge.Ligand[0]
     organic_ligand = datamerge.Extractant[0]
-    path = '~/Desktop/Berkeley/AbergelGroup/Research/Extractions/Results/ProcessedDataFiles/'
-    datamerge.to_csv(path+date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.csv')
-    filename_datamerge = str(path)+str(date)+str(isotope)+'_'+str(aqueous_ligand)+'_'+str(organic_ligand)+'.csv'
-    print(filename_datamerge)
+    path = '~/Desktop/Berkeley/AbergelGroup/Research/Extractions/Results/'
+    datamerge.to_csv(path+'ProcessedDataFiles/'+date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.csv')
+    filename_datamerge = str(path)+'ProcessedDataFiles/'+str(date)+str(isotope)+'_'+str(aqueous_ligand)+'_'+str(organic_ligand)+'.csv'
+
+    if input("Should this get added to the total data file? (aka, is this the first time you're running through this data?) (y/n): ") == 'y':
+        allthedataframe = pd.concat([allthedataframe,datamerge],ignore_index=True)
+        allthedataframe.to_csv(path+'ProcessedDataFiles/allthedata.csv')
+        print ('done!')
+    else:
+        print ('Okay -- have fun re-running stuff ;)')
 
     if varies == 'aql':
         independentvariable = 'Ligand'
@@ -340,7 +352,7 @@ def expertableanalysis():
     datan = pd.read_csv(filename_datamerge)
     yvalues = datan['Extraction %'].tolist()
     xvalues = datan[independentvariable].tolist()
-    trace = go.Scatter(x = xvalues, y = yvalues, mode = 'markers')
+    trace = go.Scatter(x = xvalues, y = yvalues, mode = 'markers', name = aqueous_ligand)
     allthedata.append(trace)
 
     layout = go.Layout(
@@ -361,31 +373,31 @@ def expertableanalysis():
             type = 'linear',
             autorange = False,
             domain = [0,1],
-            range = [0,1],
+            range = [0,1.1],
             title = 'Extraction Percent',
             showgrid = True,
             showline = True
         ),
-        title=str(isotope)+' Extraction into '+str(organic_ligand)+' with '+str(independentvariabletitle)
+        title=str(isotope)+' Extraction into '+str(organic_ligand)+' with varying '+str(independentvariable)
     )
     fig = go.Figure(data=allthedata, layout=layout)
+    print (path+'Images/'+date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.png')
+    plot = py.offline.plot(fig, image = 'png')
+    time.sleep(1)
+    #py.image.save_as(plot, path+date+isotope+'_'+aqueous_ligand+'_'+organic_ligand)
+    programfilename = os.path.join('C:/Users/Kathy Shield/Desktop','plot_image.png').replace('\\','/')
+    print (programfilename)
+    newfilename = os.path.join('C:/Users/Kathy Shield/Desktop/Berkeley/AbergelGroup/Research/Extractions/Results/Images',date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.png').replace('\\','/')
+    print (newfilename)
+    os.rename(programfilename, newfilename)
+    if os.path.exists(programfilename):
+        os.remove(programfilename)
+    print ('file removed')
 
-    py.offline.plot(fig, image = 'png', image_filename = str(path)+str(date)+str(isotope)+'_'+str(aqueous_ligand)+'_'+str(organic_ligand)+'.png')
-
-
+#We really start here...
 howmanyfiles = input('How many files are there? ')
 allthedata = []
-
-# If there is only one file, use filename = "ExperTable.csv"
-# if howmanyfiles == '1':
-#     filename = '1.ExperTable.csv'
-#     print(filename)
-#     expertableanalysis()
-#
-# # If there is more than one file, first use splitLSC.sh to split properly.
-# # Everything else is a loop through all the files.
-# else:
 for value in range(int(howmanyfiles)):
         # Filenames are in this format when they come out of splitLSC.sh
-    filename = str(value+1)+'.ExperTable.csv'
+    filename = os.path.join('C:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\RawData\\splitfiles', str(value+1)+'.ExperTable.csv')
     expertableanalysis()
