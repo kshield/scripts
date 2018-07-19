@@ -20,7 +20,10 @@ datan = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\Ab
 
 ### pH 6 DATA
 
-relevantdata = datan[(datan['Isotope'] == 'Gd153') & (datan['Date'] != '6/20/2018') & (datan['Initial pH'] == 6) & (datan['Extractant Concentration (M)'] == 0.0025)]
+relevantdata = datan[(datan['Isotope'] == 'Gd153') &
+(datan['Date'] != '6/20/2018') &
+(datan['Initial pH'] == 6) &
+(datan['Extractant Concentration (M)'] == 0.0025)]
 
 
 CDTA6data = relevantdata[relevantdata['Ligand'] == 'CDTA']
@@ -31,14 +34,21 @@ EDTA6data = relevantdata[relevantdata['Ligand'] == 'EDTA']
 EDTA6data = EDTA6data.sort_values('Ligand Concentration (mM)')
 PDTA6data = relevantdata[relevantdata['Ligand'] == 'PDTA']
 PDTA6data = PDTA6data.sort_values('Ligand Concentration (mM)')
-
+CAM6data = relevantdata[relevantdata['Ligand'] == 'CAM']
+CAM6data = CAM6data.sort_values('Ligand Concentration (mM)')
+CHHC6data = relevantdata[relevantdata['Ligand'] == 'CHHC']
+CHHC6data = CHHC6data.sort_values('Ligand Concentration (mM)')
+HCCH6data = relevantdata[relevantdata['Ligand'] == 'HCCH']
+HCCH6data = HCCH6data.sort_values('Ligand Concentration (mM)')
+HOPO6data = relevantdata[relevantdata['Ligand'] == 'HOPO']
+HOPO6data = HOPO6data.sort_values('Ligand Concentration (mM)')
 
 CDTA6plot = go.Scatter(
     x = CDTA6data['Ligand Concentration (mM)'],
     y = CDTA6data['Extraction %'],
     mode = 'lines+markers',
     name = 'CDTA, pH 6',
-    line = dict(color = "rgba(240,0,0,1)", dash = 'dash')
+    line = dict(color = "rgba(240,0,0,1)")
 )
 
 DTPA6plot = go.Scatter(
@@ -46,7 +56,7 @@ DTPA6plot = go.Scatter(
     y = DTPA6data['Extraction %'],
     mode = 'lines+markers',
     name = 'DTPA, pH 6',
-    line = dict(color = 'rgba(56,6,156,1)', dash = 'dash')
+    line = dict(color = 'rgba(56,6,156,1)')
 )
 
 EDTA6plot = go.Scatter(
@@ -54,7 +64,7 @@ EDTA6plot = go.Scatter(
     y = EDTA6data['Extraction %'],
     mode = 'lines+markers',
     name = 'EDTA, pH 6',
-    line = dict(color = 'rgba(124,3,83,1)', dash = 'dash')
+    line = dict(color = 'rgba(124,3,83,1)')
 )
 
 PDTA6plot = go.Scatter(
@@ -62,7 +72,39 @@ PDTA6plot = go.Scatter(
     y = PDTA6data['Extraction %'],
     mode = 'lines+markers',
     name = 'PDTA, pH 6',
-    line = dict(color = 'rgba(250,100,30,1)', dash = 'dash')
+    line = dict(color = 'rgba(250,100,30,1)')
+)
+
+CAM6plot = go.Scatter(
+    x = CAM6data['Ligand Concentration (mM)'],
+    y = CAM6data['Extraction %'],
+    mode = 'lines+markers',
+    name = 'CAM, pH 6',
+    line = dict(color = 'rgba(76,178,76,1)')
+)
+
+CHHC6plot = go.Scatter(
+    x = CHHC6data['Ligand Concentration (mM)'],
+    y = CHHC6data['Extraction %'],
+    mode = 'lines+markers',
+    name = 'CHHC, pH 6',
+    line = dict(color = 'rgba(16,136,102,1)')
+)
+
+HCCH6plot = go.Scatter(
+    x = HCCH6data['Ligand Concentration (mM)'],
+    y = HCCH6data['Extraction %'],
+    mode = 'lines+markers',
+    name = 'HCCH, pH 6',
+    line = dict(color = 'rgba(105,178,231,1)')
+)
+
+HOPO6plot = go.Scatter(
+    x = HOPO6data['Ligand Concentration (mM)'],
+    y = HOPO6data['Extraction %'],
+    mode = 'lines+markers',
+    name = 'HOPO, pH 6',
+    line = dict(color = 'rgba(16,54,207,1)')
 )
 
 #### pH 7 DATA #####
@@ -104,7 +146,7 @@ EDTA7plot = go.Scatter(
     mode = 'lines+markers',
     name = 'EDTA, pH 7',
     marker = dict(symbol = "square"),
-    line = dict(color = 'rgba(124,3,83,.75)')
+    line = dict(color = 'rgba(124,3,83,.75)', dash = "dash")
 )
 
 PDTA7plot = go.Scatter(
@@ -116,7 +158,10 @@ PDTA7plot = go.Scatter(
     line = dict(color = 'rgba(250,100,30,.75)')
 )
 
-data = [CDTA6plot,DTPA6plot,EDTA6plot,PDTA6plot, CDTA7plot, DTPA7plot, EDTA7plot, PDTA7plot]
+data = [CDTA6plot,DTPA6plot,EDTA6plot,PDTA6plot,
+CDTA7plot, DTPA7plot, EDTA7plot, PDTA7plot,
+CAM6plot,CHHC6plot,HCCH6plot,HOPO6plot
+]
 
 layout = go.Layout(
 xaxis = dict(
