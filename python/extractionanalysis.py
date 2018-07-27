@@ -94,8 +94,8 @@ def expertableanalysis():
             # Make the list repeat three times
             print (aqueous_concentrations)
         # Convert the floats into a series of values in pandas.
-
         datasplit_aqueous['Aq_Conc (mM)'] = aqueous_concentrations
+        return (triplicate)
 
     def aqueous_concentration_constant():
         aqueous_concentrations = input('Please input the aqueous concentration (mM): ')
@@ -180,7 +180,7 @@ def expertableanalysis():
         elif varies == 'aqconc':
             print('Okay! The concentration of the aqueous ligand varies.')
             aqueous_ligand = aqueous_constant()
-            aqueous_concentration_varies()
+            triplicate = aqueous_concentration_varies()
             pH_constant()
             organic_ligand_constant()
             organic_concentration_constant()
@@ -356,9 +356,31 @@ def expertableanalysis():
 
 
     datan = pd.read_csv(filename_datamerge)
-    yvalues = datan['Extraction %'].tolist()
-    xvalues = datan[independentvariable].tolist()
-    trace = go.Scatter(x = xvalues, y = yvalues, mode = 'markers', name = aqueous_ligand)
+    if triplicate == 'y':
+        number_of_points = int(len(datan[independentvariable])/3)
+        xvalues = datan[independentvariable].tolist()
+        xvalues = xvalues[0:number_of_points]
+        yvalues = []
+        yerror = []
+        for point in range(0,number_of_points):
+            value = datan.loc[(datan[independentvariable] == xvalues[point]), 'Extraction %'].mean()
+            standard_deviation = datan.loc[(datan[independentvariable] == xvalues[point]), 'Extraction %'].std()
+            yvalues.append(value)
+            yerror.append(standard_deviation)
+    else:
+        yvalues = datan['Extraction %'].tolist()
+        xvalues = datan[independentvariable].tolist()
+    trace = go.Scatter(
+        x = xvalues,
+        y = yvalues,
+        mode = 'markers',
+        name = aqueous_ligand,
+        error_y = dict(
+            type = 'data',
+            array = yerror,
+            visible = 'True'
+            )
+        )
     allthedata.append(trace)
 
     layout = go.Layout(
