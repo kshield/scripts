@@ -84,11 +84,17 @@ def expertableanalysis():
         print(aqueous_ligand)
 
     def aqueous_concentration_varies():
+        triplicate = input ('Is this data in triplicate? (y/n):')
         aqueous_concentrations = input('Please input the aqueous concentrations (mM), comma separated: ')
         # Convert the string into float values (allows for decimals; necessary for numerical entries)
         aqueous_concentrations = [float(x) for x in aqueous_concentrations.split(',')]
-        # Convert the floats into a series of values in pandas.
         aqueous_concentrations = pd.Series(aqueous_concentrations).values
+        if triplicate == 'y':
+            aqueous_concentrations = np.tile (aqueous_concentrations,3)
+            # Make the list repeat three times
+            print (aqueous_concentrations)
+        # Convert the floats into a series of values in pandas.
+
         datasplit_aqueous['Aq_Conc (mM)'] = aqueous_concentrations
 
     def aqueous_concentration_constant():
