@@ -370,6 +370,7 @@ def expertableanalysis():
     else:
         yvalues = datan['Extraction %'].tolist()
         xvalues = datan[independentvariable].tolist()
+        yerror = 0
     trace = go.Scatter(
         x = xvalues,
         y = yvalues,
