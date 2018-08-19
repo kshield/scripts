@@ -50,6 +50,8 @@ else:
                 ligand_colors.append('rgba(105,178,231,1)')
             elif ligand == 'CAM':
                 ligand_colors.append('rgba(76,178,76,1)')
+
+
 # Which isotopes are we graphing today?
 
 # Warning about data
@@ -58,7 +60,8 @@ print ('This script only incorporates pH 6 data; if you want other pH values, go
 # Actually plotting the thing
 graphdata = []
 for ligand in graphed_ligands:
-    entrynumber = graphed_ligands.index(ligand)
+    indexnumber = graphed_ligands.index(ligand)
+    linecolor = ligand_colors[indexnumber]
     liganddata = datan[(datan['Ligand'] == ligand) & (datan['Initial pH'] == 6) & (datan['Extractant Concentration (M)'] == 0.0025) & (datan['Exclude Me'] != 'y')]
     liganddata.sort_values('Ligand Concentration (mM)', inplace = True)
     xvalues_all = liganddata['Ligand Concentration (mM)'].unique().tolist()
@@ -77,23 +80,31 @@ for ligand in graphed_ligands:
             yvalues.append(value)
             yerror.append(standard_deviation)
             triplicatedataexists.append(point)
-        if len(triplicatedataexists) >= 1:
-            yerror_status = dict(
+    if len(triplicatedataexists) >= 1:
+        trace = go.Scatter(
+            x = xvalues,
+            y = yvalues,
+            mode = 'markers+lines',
+            name = ligand,
+            line = dict(color = linecolor),
+            error_y = dict(
                 type = 'data',
                 array = yerror,
                 visible = 'True',
-                color = ligand_colors[entrynumber]
+                color = linecolor
                 )
-        else:
-            print ('no')
-            xvalues = xvalues_all
-            yvalues = liganddata['Extraction %']
+            )
+        graphdata.append(trace)
+    else:
+        print ('no')
+        xvalues = xvalues_all
+        yvalues = liganddata['Extraction %']
         trace = go.Scatter(
             x = xvalues,
             y = yvalues,
             mode = 'markers+lines',
             name = ligand+ '*',
-            line = dict(color = ligand_colors[entrynumber])
+            line = dict(color = linecolor)
             )
         graphdata.append(trace)
 
@@ -125,5 +136,5 @@ for ligand in graphed_ligands:
         ),
         title = 'Extraction into HDEHP with varying Ligands'
     )
-fig = go.Figure(data=graphdata, layout=layout)
+    fig = go.Figure(data=graphdata, layout=layout)
 plot = py.offline.plot(fig, image = 'png')
