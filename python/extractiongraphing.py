@@ -20,7 +20,7 @@ potential_ligands = ['CDTA', 'DTPA', 'EDTA', 'PDTA', 'TTHA', 'DTPMP', 'EDTPA', '
 allligands = input ('Do you want to graph all possible ligands? (y/n): ')
 if allligands == 'y':
     graphed_ligands = potential_ligands
-    ligand_colors = ['rgba(240,0,0,', 'rgba(56,6,156,', 'rgba(124,3,83,', 'rgba(250,100,30,', 'rgba(71,51,30,', 'rgba(65,6,165,', 'rgba(142,3,83,', 'rgba(76,178,76,', 'rgba(16,136,102,', 'rgba(105,178,231,', 'rgba(16,54,207,']
+    ligand_colors = ['rgba(240,0,0,', 'rgba(56,6,156,', 'rgba(124,3,83,', 'rgba(250,100,30,', 'rgba(71,51,30,', 'rgba(164,125,242,', 'rgba(242,116,199,', 'rgba(76,178,76,', 'rgba(16,136,102,', 'rgba(105,178,231,', 'rgba(16,54,207,']
 else:
     graphed_ligands = []
     ligand_colors = []
@@ -39,9 +39,9 @@ else:
             elif ligand == 'TTHA':
                 ligand_colors.append('rgba(71,51,30,')
             elif ligand == 'DTPMP':
-                ligand_colors.append('rgba(65,6,165,')
+                ligand_colors.append('rgba(164,125,242,')
             elif ligand == 'EDTPA':
-                ligand_colors.append('rgba(142,3,83,')
+                ligand_colors.append('rgba(242,116,199,')
             elif ligand == 'HOPO':
                 ligand_colors.append('rgba(16,54,207,')
             elif ligand == 'CHHC':
