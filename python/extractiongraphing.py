@@ -20,7 +20,7 @@ potential_ligands = ['CDTA', 'DTPA', 'EDTA', 'PDTA', 'TTHA', 'DTPMP', 'EDTPA', '
 allligands = input ('Do you want to graph all possible ligands? (y/n): ')
 if allligands == 'y':
     graphed_ligands = potential_ligands
-    ligand_colors = ['rgba(240,0,0,1)', 'rgba(56,6,156,1)', 'rgba(124,3,83,1)', 'rgba(250,100,30,1)', 'rgba(71,51,30,1)', 'rgba(65,6,165,1)', 'rgba(142,3,83,1)', 'rgba(76,178,76,1)', 'rgba(16,136,102,1)', 'rgba(105,178,231,1)', 'rgba(16,54,207,1)']
+    ligand_colors = ['rgba(240,0,0,', 'rgba(56,6,156,', 'rgba(124,3,83,', 'rgba(250,100,30,', 'rgba(71,51,30,', 'rgba(65,6,165,', 'rgba(142,3,83,', 'rgba(76,178,76,', 'rgba(16,136,102,', 'rgba(105,178,231,', 'rgba(16,54,207,']
 else:
     graphed_ligands = []
     ligand_colors = []
@@ -29,27 +29,27 @@ else:
         if ligand_yes == 'y':
             graphed_ligands.append(ligand)
             if ligand == 'CDTA':
-                ligand_colors.append('rgba(240,0,0,1)')
+                ligand_colors.append('rgba(240,0,0,')
             elif ligand == 'DTPA':
-                ligand_colors.append('rgba(56,6,156,1)')
+                ligand_colors.append('rgba(56,6,156,')
             elif ligand == 'EDTA':
-                ligand_colors.append('rgba(124,3,83,1)')
+                ligand_colors.append('rgba(124,3,83,')
             elif ligand == 'PDTA':
-                ligand_colors.append('rgba(250,100,30,1)')
+                ligand_colors.append('rgba(250,100,30,')
             elif ligand == 'TTHA':
-                ligand_colors.append('rgba(71,51,30,1)')
+                ligand_colors.append('rgba(71,51,30,')
             elif ligand == 'DTPMP':
-                ligand_colors.append('rgba(65,6,165,1)')
+                ligand_colors.append('rgba(65,6,165,')
             elif ligand == 'EDTPA':
-                ligand_colors.append('rgba(142,3,83,1)')
+                ligand_colors.append('rgba(142,3,83,')
             elif ligand == 'HOPO':
-                ligand_colors.append('rgba(16,54,207,1)')
+                ligand_colors.append('rgba(16,54,207,')
             elif ligand == 'CHHC':
-                ligand_colors.append('rgba(16,136,102,1)')
+                ligand_colors.append('rgba(16,136,102,')
             elif ligand == 'HCCH':
-                ligand_colors.append('rgba(105,178,231,1)')
+                ligand_colors.append('rgba(105,178,231,')
             elif ligand == 'CAM':
-                ligand_colors.append('rgba(76,178,76,1)')
+                ligand_colors.append('rgba(76,178,76,')
 
 
 # Which isotopes are we graphing today?
@@ -86,17 +86,16 @@ for ligand in graphed_ligands:
             y = yvalues,
             mode = 'markers+lines',
             name = ligand,
-            line = dict(color = linecolor),
+            line = dict(color = linecolor+'1)'),
             error_y = dict(
                 type = 'data',
                 array = yerror,
                 visible = 'True',
-                color = linecolor
+                color = linecolor+'.5)'
                 )
             )
         graphdata.append(trace)
     else:
-        print ('no')
         xvalues = xvalues_all
         yvalues = liganddata['Extraction %']
         trace = go.Scatter(
@@ -104,7 +103,7 @@ for ligand in graphed_ligands:
             y = yvalues,
             mode = 'markers+lines',
             name = ligand+ '*',
-            line = dict(color = linecolor)
+            line = dict(color = linecolor+'1)')
             )
         graphdata.append(trace)
 
