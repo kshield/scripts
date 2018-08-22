@@ -42,7 +42,7 @@ def expertableanalysis():
     # Making the table to get filled with data and export
     datamerge = pd.DataFrame()
 
-    allthedataframe = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\Results\\ProcessedDataFiles','allthedata.csv'))
+    allthedataframe = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\Results\\ProcessedDataFiles','allthedata.csv')).drop(['Unnamed: 0'],axis=1)
 
     # Separate the data into aqueous and organic tables
     datamerge.reset_index(drop=True, inplace=True)
@@ -322,12 +322,12 @@ def expertableanalysis():
     aqueous_ligand = datamerge.Ligand[0]
     organic_ligand = datamerge.Extractant[0]
     path = '~/Desktop/Berkeley/AbergelGroup/Research/Extractions/Results/'
-    datamerge.to_csv(path+'ProcessedDataFiles/'+date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.csv')
+    datamerge.to_csv(path+'ProcessedDataFiles/'+date+isotope+'_'+aqueous_ligand+'_'+organic_ligand+'.csv', index=False)
     filename_datamerge = str(path)+'ProcessedDataFiles/'+str(date)+str(isotope)+'_'+str(aqueous_ligand)+'_'+str(organic_ligand)+'.csv'
 
     if input("Should this get added to the total data file? (aka, is this the first time you're running through this data?) (y/n): ") == 'y':
         allthedataframe = pd.concat([allthedataframe,datamerge],ignore_index=True)
-        allthedataframe.to_csv(path+'ProcessedDataFiles/allthedata.csv')
+        allthedataframe.to_csv(path+'ProcessedDataFiles/allthedata.csv', index=False)
         print ('done!')
     else:
         print ('Okay -- have fun re-running stuff ;)')
