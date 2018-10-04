@@ -42,8 +42,7 @@ def expertableanalysis():
     # Making the table to get filled with data and export
     datamerge = pd.DataFrame()
 
-    allthedataframe = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\Results\\ProcessedDataFiles','allthedata.csv')).drop(['Unnamed: 0'],axis=1)
-
+    allthedataframe = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\Results\\ProcessedDataFiles','allthedata.csv'))
     # Separate the data into aqueous and organic tables
     datamerge.reset_index(drop=True, inplace=True)
 
@@ -428,5 +427,7 @@ howmanyfiles = input('How many files are there? ')
 allthedata = []
 for value in range(int(howmanyfiles)):
         # Filenames are in this format when they come out of splitLSC.sh
-    filename = os.path.join('C:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\RawData\\splitfiles', str(value+1)+'.ExperTable.csv')
+    #filename is either ExperTable.csv or Report1.txt
+    filename_general = input('What is the core file name? (Likely either ExperTable.csv or Report1.txt): ')
+    filename = os.path.join('C:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\RawData\\splitfiles', str(value+1)+'.'+filename_general)
     expertableanalysis()
