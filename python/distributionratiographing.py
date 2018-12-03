@@ -26,7 +26,7 @@ DTPAcolor = 'rgba(128,0,0,'
 EDTAcolor = 'rgba(0,130,200,'
 PDTAcolor = 'rgba(240,50,230,'
 TTHAcolor = 'rgba(230,25,75,'
-DTPMPcolor = 'rgba(241,73,35,'
+DTPMPcolor = 'rgba(0,128,128,'
 EDTPAcolor = 'rgba(0,0,128,'
 CAMcolor = 'rgba(250,190,190,'
 CHHCcolor = 'rgba(70,240,240,'
@@ -55,7 +55,7 @@ else:
             elif ligand == 'TTHA':
                 ligand_colors.append('rgba(230,25,75,')
             elif ligand == 'DTPMP':
-                ligand_colors.append('rgba(241,73,35,')
+                ligand_colors.append('rgba(0,128,128,')
             elif ligand == 'EDTPA':
                 ligand_colors.append('rgba(0,0,128,')
             elif ligand == 'CAM':
@@ -97,7 +97,7 @@ print ('This script only incorporates pH 6 data; if you want other pH values, go
 
 datan['Date'] = datan.Date
 date = datetime.datetime.strptime(datan.loc[0,'Date'],'%m/%d/%Y').strftime('%Y%m%d')
-graphtitle = input ('Please Input the Desired title: ')
+
 # Actually plotting the thing
 graphdata = []
 for isotope in graphed_isotopes:
@@ -196,25 +196,13 @@ for isotope in graphed_isotopes:
         # if no data exists in triplicate, plot the single data that exists with no error bars
 
         layout = go.Layout(
-            title = graphtitle,
-                titlefont = dict(
-                    family = 'Georgia',
-                    size = 30
-                ),
+            title = 'Ac and Gd Extraction: DTPA and HOPO',
             xaxis = dict(
                 type = 'log',
                 #autorange = True,
                 domain = [0,1],
                 range = [-5.2,3],
                 title = 'Ligand Concentration (mM)',
-                titlefont = dict(
-                    family = 'Georgia',
-                    size = 22
-                ),
-                tickfont = dict(
-                    family = 'Georgia',
-                    size = 22
-                ),
                 showgrid = True,
                 showline = True,
                 exponentformat = 'e',
@@ -226,25 +214,16 @@ for isotope in graphed_isotopes:
                 domain = [0,1],
                 range = [0,1.1],
                 title = 'Relative Extraction',
-                titlefont = dict(
-                    family = 'Georgia',
-                    size = 22
-                ),
-                tickfont = dict(
-                    family = 'Georgia',
-                    size = 22
-                ),
                 showgrid = True,
                 showline = True),
             legend = dict(
-                font = dict(
-                    family = 'Georgia',
-                    size = 14
-                ),
+                #font = dict(
+                #    size = 18
+                #),
                 orientation = 'h',
                 xanchor = 'center',
                 x = 0.5,
-                y = 1.05
+                y = -.2
             )
         )
     fig = go.Figure(data=graphdata, layout=layout)

@@ -1,0 +1,60 @@
+#!/bin/bash
+# JAR Jun 4, 2018 - this script processes LSC flag 10 output files, and splits
+# the csv into separate files, all containing the header line, every time a
+# missing vial is encountered.
+
+#Kathy's commment
+
+if [ "$#" != 1 ]; then
+  echo "ERROR: Incorrect number of arguments! usage: splitLSC filename"
+  exit 1
+fi
+
+# make a new folder (if it doesn't exist)
+[ ! -d splitfiles ] && mkdir splitfiles
+
+# select the 6th line of the file ($1 is the first argument for the script, the filename), make it the variable HEAD
+HEAD=$(head -n 16 $1 | tail -n 1)
+
+# copy the file to a working file
+cp $1 $1.working
+
+# get the number of lines in the original file, write to variable NLINES
+NLINES=$(wc -l $1 | awk '{print $1}')
+
+#copy all non-header and non-background lines to the working file
+tail -n $(($NLINES-17)) $1 > $1.working
+
+# count the number of lines (wc -l) that contain the string "Missing"
+nsplits=$(awk '/Missing/' $1.working | wc -l)
+
+# looping!
+for split in $(seq $nsplits);
+do
+  # get the vial number of the missing samples, write to "spl"
+  spl=$(awk '/Missing/' $1 | head -n $split | tail -n 1 | awk $'{print $3}' | awk -F "." $'{print $1}')
+
+  # make a new file in the folder "splitfiles" that starts with the header line, indexing by number
+  echo $HEAD > splitfiles/$split.$1
+
+  # write spl to splits.temp, the double arrow means "append to existing file"
+  echo $spl >> splits.temp
+
+  # get the starting vial number for the working file
+  head -n 1 $1.working | awk -F  "," $'{print $1}' > fline.temp
+
+  # figure out how many lines to copy by subtracting fline.temp from the vial number in splits.temp
+  ncopylines=$(($(head -n $split splits.temp | tail -n 1) - $(cat fline.temp)))
+
+  # copy those first lines and append them to the new file in splitfiles
+  head -n $ncopylines $1.working >> splitfiles/$split.$1
+
+  # take the end of the working file, starting at the number of copied lines + 2, and overwrite the working file (ends up deleting the copied lines)
+  tail -n +$(($ncopylines+2)) $1.working > $1.working.temp
+  mv $1.working.temp $1.working
+
+done
+echo $HEAD > splitfiles/$(($split + 1)).$1
+cat $1.working >> splitfiles/$(($split + 1)).$1
+rm $1.working
+rm *.temp

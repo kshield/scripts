@@ -293,7 +293,11 @@ def expertableanalysis():
     extractionpercent=[]
     for line in range(0,organicvalues.size):
         extractionpercent.append(organicvalues[line]/(aqueousvalues[line]+organicvalues[line]))
+    distributionvalue = []
+    for line in range(0,organicvalues.size):
+        distributionvalue.append(organicvalues[line]/aqueousvalues[line])
     datamerge['Extraction %'] = extractionpercent
+    datamerge['Distribution Value'] = distributionvalue
     datamerge['Isotope'] = datasplit_aqueous.Isotope
     datamerge['Ligand'] = datasplit_aqueous.Aq_Ligand
     datamerge['Ligand Concentration (mM)'] = datasplit_aqueous['Aq_Conc (mM)']
@@ -428,6 +432,6 @@ allthedata = []
 for value in range(int(howmanyfiles)):
         # Filenames are in this format when they come out of splitLSC.sh
     #filename is either ExperTable.csv or Report1.txt
-    filename_general = input('What is the core file name? (Likely either ExperTable.csv or Report1.txt): ')
+    filename_general = 'ExperTable.csv'
     filename = os.path.join('C:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\RawData\\splitfiles', str(value+1)+'.'+filename_general)
     expertableanalysis()
