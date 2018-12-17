@@ -16,10 +16,14 @@ py.tools.set_credentials_file(username = 'kshield', api_key = 'H9UX6nYroLdbt1W1p
 datan = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\Results\\ProcessedDataFiles','allthedata.csv'))
 
 # Are we plotting triplicate data or individual points?
-triplicateorno = input ('For n>=3 data, show average and error bars or individual points? (average/individual): ')
+triplicateorno = input ('For n>=3 data, show average and error bars (normalized) or individual points (true extraction data)? (average/individual): ')
 
-# Which ligands are we graphing today?
-potential_ligands = ['CDTA', 'DTPA', 'EDTA', 'PDTA', 'TTHA', 'DTPMP', 'EDTPA', 'CAM', 'CHHC', 'HCCH', 'HOPO']
+# ---------------------------- SELECTING THE DATA TO PLOT  ------------------------------
+
+
+# --------------------- LIGANDS -----------------------
+
+potential_ligands = ['CDTA', 'DTPA', 'EDTA', 'PDTA', 'TTHA', 'DTPMP', 'EDTPA', 'CAM', 'CHHC', 'HCCH', 'HOPO', 'bacillibactin']
 # Ligand colors list
 CDTAcolor = 'rgba(245,130,48,'
 DTPAcolor = 'rgba(128,0,0,'
@@ -32,10 +36,11 @@ CAMcolor = 'rgba(250,190,190,'
 CHHCcolor = 'rgba(70,240,240,'
 HCCHcolor = 'rgba(145,30,180,'
 HOPOcolor = 'rgba(60,180,75,'
+bbactincolor = HCCHcolor
 allligands = input ('Do you want to graph all possible ligands? (y/n): ')
 if allligands == 'y':
     graphed_ligands = potential_ligands
-    ligand_colors = [CDTAcolor, DTPAcolor, EDTAcolor, PDTAcolor, TTHAcolor, DTPMPcolor, EDTPAcolor, CAMcolor, CHHCcolor, HCCHcolor, HOPOcolor]
+    ligand_colors = [CDTAcolor, DTPAcolor, EDTAcolor, PDTAcolor, TTHAcolor, DTPMPcolor, EDTPAcolor, CAMcolor, CHHCcolor, HCCHcolor, HOPOcolor, bbactincolor]
 else:
     graphed_ligands = []
     ligand_colors = []
@@ -66,9 +71,11 @@ else:
                 ligand_colors.append('rgba(145,30,180,')
             elif ligand == 'HOPO':
                 ligand_colors.append('rgba(60,180,75,')
+            elif ligand == 'bacillibactin':
+                ligand_colors.append('rgba(145,30,180,')
 
-# Which isotopes are we graphing today?
-potential_isotopes = ['Ac227','Gd153','Lu177','Ce134']
+# --------------------- ISOTOPES --------------------------
+potential_isotopes = ['Ac227','Ce134','Gd153','Lu177']
 # Isotope line format list
 Ac227line = 'dot'
 Gd153line = ''
@@ -100,7 +107,7 @@ else:
                 isotope_lines.append('longdash')
                 isotope_markers.append('triangle')
 
-# At what pH values are we plotting today?
+# ------------------------------ pH VALUES ------------------------
 potential_pH = ['6','7','7.4']
 pH6marker = 'circle'
 pH7marker = 'square'
@@ -124,15 +131,16 @@ else:
             elif pH == 7.4:
                 pH_markers.append('diamond')
 
-# Warning about data
-print ('This script only incorporates pH 6 data; if you want other pH values, go elsewhere.')
 
+
+# --------------------------------- EXTRACTING THE DATA ---------------------------------
 
 datan['Date'] = datan.Date
 date = datetime.datetime.strptime(datan.loc[0,'Date'],'%m/%d/%Y').strftime('%Y%m%d')
 graphtitle = input ('Please Input the Desired title: ')
 # Actually plotting the thing
 graphdata = []
+linetype = []
 for isotope in graphed_isotopes:
     isotopeindex = graphed_isotopes.index(isotope)
     linetype = isotope_lines[isotopeindex]
@@ -152,6 +160,9 @@ for isotope in graphed_isotopes:
             xvalues = []
             yvalues = []
             yerror = []
+            xvaluessingle = []
+            yvaluessingle = []
+            yerrorsingle = []
             # figuring out how many data points are in triplicate
             numberofentries = liganddata.groupby('Ligand Concentration (mM)').size().tolist()
             if triplicateorno == 'average':
@@ -159,21 +170,24 @@ for isotope in graphed_isotopes:
                 for point in range(0,len(xvalues_all)):
                 #if the data is in triplicate or more:
                     if numberofentries[point] >= 3:
-                        value = liganddata.loc[(liganddata['Ligand Concentration (mM)'] == xvalues_all[point]), 'Extraction %'].mean()
-                        standard_deviation = liganddata.loc[(liganddata['Ligand Concentration (mM)'] == xvalues_all[point]), 'Extraction %'].std()
-                        xvalues.append(xvalues_all[point])
-                        yvalues.append(value)
-                        yerror.append(standard_deviation)
-                        triplicatedataexists.append(point)
-                    elif numberofentries[point] <= 2 and isotope == 'Ac227':
                         maxvalue = liganddata.iloc[0]['Extraction %']
                         value = liganddata.loc[(liganddata['Ligand Concentration (mM)'] == xvalues_all[point]), 'Extraction %'].mean()
                         normalizedvalue = value/maxvalue
-                        standard_deviation = 0
+                        standard_deviation = liganddata.loc[(liganddata['Ligand Concentration (mM)'] == xvalues_all[point]), 'Extraction %'].std()
+                        normalizedstandard_deviation = standard_deviation/maxvalue
                         xvalues.append(xvalues_all[point])
                         yvalues.append(normalizedvalue)
-                        yerror.append(standard_deviation)
+                        yerror.append(normalizedstandard_deviation)
                         triplicatedataexists.append(point)
+                    elif numberofentries[point] <= 2:
+                        liganddata = liganddata.sort_values(by=['Extraction %'], ascending=False)
+                        maxvalue = liganddata.iloc[0]['Extraction %']
+                        value = liganddata.loc[(liganddata['Ligand Concentration (mM)'] == xvalues_all[point]), 'Extraction %'].mean()
+                        normalizedvalue = value/maxvalue
+                        standard_deviation = liganddata.loc[(liganddata['Ligand Concentration (mM)'] == xvalues_all[point]), 'Extraction %'].std()
+                        xvaluessingle.append(xvalues_all[point])
+                        yvaluessingle.append(normalizedvalue)
+                        yerrorsingle.append(standard_deviation)
                 if len(triplicatedataexists) >= 1:
                     trace = go.Scatter(
                         x = xvalues,
@@ -194,16 +208,22 @@ for isotope in graphed_isotopes:
                     xvalues = xvalues_all
                     yvalues = liganddata['Extraction %']
                     trace = go.Scatter(
-                        x = xvalues,
-                        y = yvalues,
-                        mode = 'markers',
+                        x = xvaluessingle,
+                        y = yvaluessingle,
+                        error_y = dict(
+                            type = 'data',
+                            array = yerrorsingle,
+                            visible = 'True',
+                            color = linecolor+'.5)'
+                            ),
+                        mode = 'markers+lines',
                         name = ligand+'-'+isotope,
                         line = dict(color = linecolor+'1)', dash = linetype),
                         marker = dict(color = linecolor+'1)', symbol = markershape, size = 10),
                         )
                     graphdata.append(trace)
             if triplicateorno == 'individual':
-                datecolors = input ('Should individual dates get different colors? (y/n): ')
+                datecolors = input ('Should individual dates of'+ligand+' + '+isotope+' + '+pH+' get different colors? (y/n): ')
                 if datecolors == 'n':
                     xvalues = liganddata['Ligand Concentration (mM)'].tolist()
                     yvalues = liganddata['Extraction %'].tolist()
@@ -232,6 +252,8 @@ for isotope in graphed_isotopes:
                             )
                         graphdata.append(trace)
             # if no data exists in triplicate, plot the single data that exists with no error bars
+
+# ------------------------------------- DESIGNING THE PLOT --------------------------------
 
             layout = go.Layout(
                 title = graphtitle,
