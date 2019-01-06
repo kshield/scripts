@@ -75,7 +75,7 @@ else:
                 ligand_colors.append('rgba(145,30,180,')
 
 # --------------------- ISOTOPES --------------------------
-potential_isotopes = ['Ac227','Ce134','Gd153','Lu177']
+potential_isotopes = ['Ac227','Ce134','Gd153','Lu177','Ac227 Daughters','La134']
 # Isotope line format list
 Ac227line = 'dot'
 Gd153line = ''
@@ -83,9 +83,15 @@ Lu177line = 'dash'
 Ce134line = 'longdash'
 allisotopes = input ('Do you want to graph all possible isotopes? (y/n): ')
 if allisotopes == 'y':
-    graphed_isotopes = potential_isotopes
-    isotope_lines = [Ac227line, Gd153line, Lu177line]
-    isotope_markers = ['circle','square','diamond','triangle']
+    includedaughters = input ('Graph daughters too? (y/n): ')
+    if includedaughters == 'y':
+        graphed_isotopes = potential_isotopes
+        isotope_lines = [Ac227line, Gd153line, Lu177line, Ac227line, Gd153line]
+        isotope_markers = ['circle','square','diamond','triangle','x','star']
+    elif includedaughters =='n':
+        graphed_isotopes = potential_isotopes
+        isotope_lines = [Ac227line, Gd153line, Lu177line]
+        isotope_markers = ['circle','square','diamond','triangle']
 else:
     graphed_isotopes = []
     isotope_lines = []
@@ -106,6 +112,12 @@ else:
             elif isotope == 'Ce134':
                 isotope_lines.append('longdash')
                 isotope_markers.append('triangle')
+            elif isotope == 'Ac227 Daughters':
+                isotope_lines.append('dot')
+                isotope_markers.append('x')
+            elif isotope == 'Ce134 Daughters':
+                isotope_lines.append('longdash')
+                isotope_markers.append('star')
 
 # ------------------------------ pH VALUES ------------------------
 potential_pH = ['6','7','7.4']
@@ -130,8 +142,6 @@ else:
                 pH_markers.append('square')
             elif pH == 7.4:
                 pH_markers.append('diamond')
-
-
 
 # --------------------------------- EXTRACTING THE DATA ---------------------------------
 
@@ -163,6 +173,7 @@ for isotope in graphed_isotopes:
             xvaluessingle = []
             yvaluessingle = []
             yerrorsingle = []
+            pHname = str(pH)
             # figuring out how many data points are in triplicate
             numberofentries = liganddata.groupby('Ligand Concentration (mM)').size().tolist()
             if triplicateorno == 'average':
@@ -223,14 +234,14 @@ for isotope in graphed_isotopes:
                         )
                     graphdata.append(trace)
             if triplicateorno == 'individual':
-                datecolors = input ('Should individual dates of'+ligand+' + '+isotope+' + '+pH+' get different colors? (y/n): ')
+                datecolors = input ('Should individual dates of'+ligand+' + '+isotope+' + '+pHname+' get different colors? (y/n): ')
                 if datecolors == 'n':
                     xvalues = liganddata['Ligand Concentration (mM)'].tolist()
                     yvalues = liganddata['Extraction %'].tolist()
                     trace = go.Scatter(
                         x = xvalues,
                         y = yvalues,
-                        mode = 'markers',
+                        mode = 'markers+lines',
                         name = ligand+'-'+isotope,
                         line = dict(color = linecolor+'1)', dash = linetype),
                         marker = dict(color = linecolor+'1)', symbol = markershape, size = 10),
@@ -246,9 +257,10 @@ for isotope in graphed_isotopes:
                         trace = go.Scatter(
                             x = xvalues,
                             y = yvalues,
-                            mode = 'markers',
-                            name = ligand+'-'+isotope+': '+ date,
-                            line = dict(dash = linetype)
+                            mode = 'markers+lines',
+                            name = ligand+'-'+isotope+', '+pHname+': '+ date,
+                            line = dict(dash = linetype),
+                            marker = dict(symbol = markershape, size = 10)
                             )
                         graphdata.append(trace)
             # if no data exists in triplicate, plot the single data that exists with no error bars
@@ -308,4 +320,4 @@ for isotope in graphed_isotopes:
                 )
             )
     fig = go.Figure(data=graphdata, layout=layout)
-plot = py.offline.plot(fig, image = 'svg')
+plot = py.offline.plot(fig, image = 'png')
