@@ -149,7 +149,7 @@ def extractdata(graphed_isotopes, graphed_ligands, graphed_pH):
     liganddata = datan[(datan['Initial pH'] == pH) &
     (datan['Ligand'] == ligand) &
     (datan['Isotope'] == parentname) &
-    (datan['Exclude Me'] != 'y') &
+    #(datan['Exclude Me'] != 'y') &
     (datan['Extractant Concentration (M)'] == 0.0025)]
             #liganddata = datan[(datan['Ligand'] == ligand) & (datan['Isotope'] == isotope) & (datan['Initial pH'] == pH) & (datan['Extractant Concentration (M)'] == 0.0025)&(datan['Exclude Me'] != 'y')]
             #(datan['Date'] >= '10/10/2018') & (datan['Date'] <= '10/11/2018') &
@@ -258,7 +258,7 @@ triplicateorno = input ('Do you want the average or individual data? (average/in
 datecolors = input ('Do you want different dates to have different colors? (y/n): ')
 graphtitle = input ('Please input the desired graph title: ')
 
-datan = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\Results\\ProcessedDataFiles','allthedata.csv'))
+datan = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\Results\\ProcessedDataFiles','Gd-HOPO.csv'))
 graphdata = []
 for isotope in graphed_isotopes:
     #print (graphed_isotopes)
