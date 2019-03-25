@@ -158,18 +158,23 @@ def extractdata(graphed_isotopes, graphed_ligands, graphed_pH):
     if isotope in ['Ac227 Daughters','La134']:
         plotdata = liganddata[['Date','Ligand Concentration (mM)','Daughter Extraction %']]
         plotdata = plotdata.rename(index = str, columns={"Daughter Extraction %":"Extraction %"})
+        parentdata = liganddata[['Date','Ligand Concentration (mM)','Extraction %']]
     elif isotope in ['Ac227','Ce134','Lu177','Gd153']:
         plotdata = liganddata[['Date','Ligand Concentration (mM)','Extraction %']]
+        parentdata = []
     else:
         print ("Error - I don't know what to do with this isotope")
         print ('ran extractdata')
     print(pH, ligand, isotope)
-    return (plotdata, linecolor, markershape, linetype, pHname, ligand, isotope)
+    return (plotdata, parentdata, linecolor, markershape, linetype, pHname, ligand, isotope)
 def bydate(triplicateorno, plotdata):
     xvalues = []
     yvalues = []
     yerror = []
+    parentyvalues = []
+    parentyerror = []
     datespecificdata = plotdata[(plotdata['Date'] == date)]
+    datespecificparentdata = parentdata[(parentdata['Date'] == date)]
     if triplicateorno == 'average' and datecolors == 'y':
         uniquexentries = datespecificdata['Ligand Concentration (mM)'].unique().tolist()
         numberofentries = datespecificdata.groupby('Ligand Concentration (mM)').size().tolist()
@@ -179,15 +184,25 @@ def bydate(triplicateorno, plotdata):
             error = datespecificdata.loc[(datespecificdata['Ligand Concentration (mM)'] == uniquexentries[point]),'Extraction %'].std()
             yvalues.append(value)
             yerror.append(error)
+            if isotope in ['Ac227 Daughters','La134']:
+                parentvalue = datespecificparentdata.loc[(datespecificparentdata['Ligand Concentration (mM)'] == uniquexentries[point]),'Extraction %'].mean()
+                parenterror = datespecificparentdata.loc[(datespecificparentdata['Ligand Concentration (mM)'] == uniquexentries[point]),'Extraction %'].std()
+                parentyvalues.append(parentvalue)
+                parentyerror.append(parenterror)
     elif triplicateorno == 'individual' and datecolors == 'y':
         xvalues = datespecificdata['Ligand Concentration (mM)'].tolist()
         yvalues = datespecificdata['Extraction %'].tolist()
         yerror = [0] * len(xvalues)
-    return (xvalues, yvalues, yerror)
-def notbydate(triplicateorno, plotdata):
+        if isotope in ['Ac227 Daughters','La134']:
+            parentyvalues = datespecificparentdata['Extraction %'].tolist()
+            parentyerror = [0] * len(xvalues)
+    return (xvalues, yvalues, yerror, parentyvalues, parentyerror)
+def notbydate(triplicateorno, plotdata, parentdata):
     xvalues = []
     yvalues = []
     yerror = []
+    parentyvalues = []
+    parentyerror = []
     if triplicateorno == 'average':
         uniquexentries = plotdata['Ligand Concentration (mM)'].unique().tolist()
         numberofentries = plotdata.groupby('Ligand Concentration (mM)').size().tolist()
@@ -197,22 +212,40 @@ def notbydate(triplicateorno, plotdata):
             error = plotdata.loc[(plotdata['Ligand Concentration (mM)'] == uniquexentries[point]),'Extraction %'].std()
             yvalues.append(value)
             yerror.append(error)
+            if isotope in ['Ac227 Daughters','La134']:
+                parentvalue = parentdata.loc[(parentdata['Ligand Concentration (mM)'] == uniquexentries[point]),'Extraction %'].mean()
+                parenterror = parentdata.loc[(parentdata['Ligand Concentration (mM)'] == uniquexentries[point]),'Extraction %'].std()
+                parentyvalues.append(parentvalue)
+                parentyerror.append(parenterror)
     elif triplicateorno == 'individual':
         xvalues = plotdata['Ligand Concentration (mM)'].tolist()
         yvalues = plotdata['Extraction %'].tolist()
         yerror = [0] * len(xvalues)
-    return (xvalues, yvalues, yerror)
-def normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror):
+        if isotope in ['Ac227 Daughters','La134']:
+            parentyvalues = datespecificparentdata['Extraction %'].tolist()
+            parentyerror = [0] * len(xvalues)
+    return (xvalues, yvalues, yerror, parentyvalues, parentyerror)
+def normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror, parentyvalues, parentyerror):
+    # PROBLEM: normalization code is normalizing the daughters independently of the parent, resulting in graphs
+    # that indication 100% daughter extraction.
+    # SOLUTION: normalization code needs to take into account the parent when it exists, and normalize to the
+    # max. value of the parent, not the max. value of the daughter.
     if normalizedorno == 'y':
-        sortedyvalues = sorted(yvalues, reverse = True) # sorts smallest to largest
-        maxyvalue = sortedyvalues[0]
+        if isotope in ['Ac227 Daughters','La134']: # if isotope has a parent
+            sortedyvalues = sorted(parentyvalues, reverse = True) # sorts parent values largest to smallest
+        else: #if isotope has no parent
+            sortedyvalues = sorted(yvalues, reverse = True) # sorts largest to smallest
+        maxyvalue = sortedyvalues[0] #defines first entry as the value to normalize by
         if maxyvalue == 0:
-            maxyvalue = 1 # sets max value as first (largest) value in the list
+            maxyvalue = 1 # prevents division by 0
         yvalues[:] = [x/maxyvalue for x in yvalues] # defines new list as the normalized values;
                                         # keeps the original ordering to match the x values ordering
 # WRONG ???? (ASK SOMEONE BETTER AT STATISTICS...)
         if triplicateorno == 'y':
-            sortedyerror = sorted(yerror, reverse = True)
+            if isotope in ['Ac227 Daughters','La134']: # if isotope has a parent
+                sortedyerror = sorted(parentyerror, reverse = True) # sorts parent values largest to smallest
+            else: #if isotope has no parent
+                sortedyerror = sorted(yerror, reverse = True) # sorts largest to smallest
             maxyerror = sortedyerror[0]
             yerror[:] = [x/maxyerror for x in yerror]
     return (xvalues, yvalues, yerror)
@@ -272,22 +305,22 @@ for isotope in graphed_isotopes:
         linecolor = ligand_colors[ligandindex]
         for pH in graphed_pH:
             pHname = str(pH)
-            plotdata, linecolor, markershape, linetype, pHname, ligand, isotope = extractdata(graphed_isotopes, graphed_ligands, graphed_pH)
+            plotdata, parentdata, linecolor, markershape, linetype, pHname, ligand, isotope = extractdata(graphed_isotopes, graphed_ligands, graphed_pH)
             #datecolors = input ('Should individual dates of '+ligand+' + '+isotope+' + '+pHname+' get different colors? (y/n): ')
             if datecolors == 'y':
                 dates_all = plotdata['Date'].unique().tolist()
                 for date in dates_all:
                     if not plotdata.empty:
                 #if data is extracted, run the rest. if not; move on
-                        xvalues, yvalues, yerror = bydate(triplicateorno, plotdata)
-                        xvalues, yvalues, yerror = normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror)
+                        xvalues, yvalues, yerror, parentyvalues, parentyerror = bydate(triplicateorno, plotdata)
+                        xvalues, yvalues, yerror = normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror, parentyvalues, parentyerror)
                         graphdata = extractionplots(xvalues, yvalues, yerror, ligand, isotope, linecolor, linetype, markershape, pHname, date)
             elif datecolors == 'n':
                 date = ''
                 if not plotdata.empty:
             #if data is extracted, run the rest. if not; move on
-                    xvalues, yvalues, yerror = notbydate(triplicateorno, plotdata)
-                    xvalues, yvalues, yerror = normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror)
+                    xvalues, yvalues, yerror, parentyvalues, parentyerror = notbydate(triplicateorno, plotdata, parentdata)
+                    xvalues, yvalues, yerror = normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror, parentyvalues, parentyerror)
                     graphdata = extractionplots(xvalues, yvalues, yerror, ligand, isotope, linecolor, linetype, markershape, pHname, date)
 
 layout = go.Layout(
@@ -339,7 +372,7 @@ layout = go.Layout(
                           orientation = 'h',
                           xanchor = 'center',
                           x = 0.5,
-                          y = 1.1
+                          y = 1.04
                       )
                   )
 fig = go.Figure(data=graphdata, layout=layout)
