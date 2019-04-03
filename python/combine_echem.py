@@ -32,19 +32,16 @@ for file in glob.glob(datafiles):
         filldata = data.iloc[1]
         allthedata = pd.concat([new_header,filldata], 1,  ignore_index=True)
         rowname = file.split("at ")[1]
-        rowname = rowname.split(" ")[0]
-        #rowname = int(rowname)
+        rowname = rowname.split(".c")[0]
         rows.append(rowname)
     elif '01)' not in file:
         newdata = data.iloc[1]
         allthedata = pd.concat([allthedata,newdata], 1,  ignore_index=True)
         rowname = file.split("at ")[1]
-        rowname = rowname.split(" ")[0]
-        #rowname = int(rowname)
+        rowname = rowname.split(".c")[0]
         rows.append(rowname)
 rows = pd.Series(rows)
 rows = rows.T
 allthedata.columns = rows
-path = '~\\Desktop\\Berkeley\\AbergelGroup\\Research\\Echem\\'
-allthedata.to_csv(path+'allthedata.csv', index=False)
+allthedata.to_csv(datafolder+'allthedata.csv', index=False)
 print ('done!')
