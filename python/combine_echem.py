@@ -23,25 +23,30 @@ warnings.filterwarnings("ignore")
 
 datafolder = 'c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Echem\\'
 datafiles = 'c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Echem\\*.csv'
-rows = ['Length (m)']
+rows = ['Length (m)'] #starting with this because it is the first column title
+ticker = 0 #to enable a different first from nth parsing
 for file in glob.glob(datafiles):
-    data = pd.read_csv(os.path.join(datafolder,file))
-    data = np.transpose(data)
-    if '01)' in file:
-        new_header = data.iloc[0]
-        filldata = data.iloc[1]
-        allthedata = pd.concat([new_header,filldata], 1,  ignore_index=True)
-        rowname = file.split("at ")[1]
+    print (file) #lets me know the program is running
+    data = pd.read_csv(os.path.join(datafolder,file)) #make the csv file
+    data = np.transpose(data) #transpose b/c I already know how to add rows/adding columns is probably just as easy
+    if ticker == 0: #for first data file
+        ticker += 1 #add to the ticker
+        new_header = data.iloc[0] #keep the first row (lengths) - doesn't keep the "length (m)" name, so I added it into the initial rows list
+        filldata = data.iloc[1] #the second row  is the data (there are only two rows in each data file)
+        allthedata = pd.concat([new_header,filldata], 1,  ignore_index=True) #combine the two rows into a new dataframe.
+        rowname = file.split("at ")[1] #extract the voltage value out of the file name
         rowname = rowname.split(".c")[0]
-        rows.append(rowname)
-    elif '01)' not in file:
+        rows.append(rowname) #add the voltage value to the rows list
+    elif ticker != 0: #everything here is the same except we don't keep the first row (lengths) b/c its always the same
+        ticker += 1
         newdata = data.iloc[1]
         allthedata = pd.concat([allthedata,newdata], 1,  ignore_index=True)
         rowname = file.split("at ")[1]
         rowname = rowname.split(".c")[0]
         rows.append(rowname)
-rows = pd.Series(rows)
-rows = rows.T
-allthedata.columns = rows
-allthedata.to_csv(datafolder+'allthedata.csv', index=False)
+rows = pd.Series(rows) #the series can get turned into column names (a list can't)
+rows = rows.T #transpose to match the data
+allthedata.columns = rows #redefine column names
+path = '~\\Desktop\\Berkeley\\AbergelGroup\\Research\\Echem\\'
+allthedata.to_csv(datafolder+'allthedata.csv', index=False) #save the file
 print ('done!')
