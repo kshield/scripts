@@ -16,16 +16,10 @@
 # This includes packages
 import os
 import glob
-import time
 import pandas as pd
 import numpy as np
 import warnings
 warnings.filterwarnings("ignore")
-import datetime
-import plotly as py
-import plotly.graph_objs as go
-py.tools.set_credentials_file(username = 'kshield', api_key = 'H9UX6nYroLdbt1W1pjgj')
-
 
 datafolder = 'c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Echem\\'
 datafiles = 'c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Echem\\*.csv'
