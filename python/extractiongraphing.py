@@ -150,9 +150,9 @@ def extractdata(graphed_isotopes, graphed_ligands, graphed_pH):
     (datan['Ligand'] == ligand) &
     (datan['Isotope'] == parentname) &
     (datan['Exclude Me'] != 'y') &
-    (datan['Extractant Concentration (M)'] == 0.0025)]
+    (datan['Extractant Concentration (M)'] == 0.0025) &
             #liganddata = datan[(datan['Ligand'] == ligand) & (datan['Isotope'] == isotope) & (datan['Initial pH'] == pH) & (datan['Extractant Concentration (M)'] == 0.0025)&(datan['Exclude Me'] != 'y')]
-            #(datan['Date'] >= '10/10/2018') & (datan['Date'] <= '10/11/2018') &
+    (datan['Date'] >= '5/2/2019') & (datan['Date'] <= '5/4/2019')]
     liganddata.sort_values('Ligand Concentration (mM)', inplace = True)
 #                xvalues_all = liganddata['Ligand Concentration (mM)'].unique().tolist()
     if isotope in ['Ac227 Daughters','La134']:
@@ -167,14 +167,16 @@ def extractdata(graphed_isotopes, graphed_ligands, graphed_pH):
         print ('ran extractdata')
     print(pH, ligand, isotope)
     return (plotdata, parentdata, linecolor, markershape, linetype, pHname, ligand, isotope)
-def bydate(triplicateorno, plotdata):
+def bydate(triplicateorno, plotdata, date):
     xvalues = []
     yvalues = []
     yerror = []
     parentyvalues = []
     parentyerror = []
-    datespecificdata = plotdata[(plotdata['Date'] == date)]
-    datespecificparentdata = parentdata[(parentdata['Date'] == date)]
+    #parentdata['Date'] = datetime.datetime.strptime(parentdata['Date'],'%m/%d/%Y').strftime('%Y%m%d')
+    #plotdata['Date'] = datetime.datetime.strptime(plotdata['Date'],'%m/%d/%Y').strftime('%Y%m%d')
+    datespecificdata = plotdata.loc[plotdata['Date'] == date]
+    #datespecificparentdata = parentdata.loc[parentdata['Date'] == date]
     if triplicateorno == 'average' and datecolors == 'y':
         uniquexentries = datespecificdata['Ligand Concentration (mM)'].unique().tolist()
         numberofentries = datespecificdata.groupby('Ligand Concentration (mM)').size().tolist()
@@ -251,7 +253,7 @@ def normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror, pare
     return (xvalues, yvalues, yerror)
 def extractionplots(xvalues, yvalues, yerror, ligand, isotope, linecolor, linetype, markershape, pHname, date):
     # individual plots without lines - except do we want
-    linename = ligand+'-'+isotope+', '+date#+', '+pHname
+    linename = ligand#+'-'+isotope#+', '+date#+', '+pHname
     if triplicateorno == 'individual':
         modetype = 'markers'
     elif triplicateorno == 'average':
@@ -312,7 +314,7 @@ for isotope in graphed_isotopes:
                 for date in dates_all:
                     if not plotdata.empty:
                 #if data is extracted, run the rest. if not; move on
-                        xvalues, yvalues, yerror, parentyvalues, parentyerror = bydate(triplicateorno, plotdata)
+                        xvalues, yvalues, yerror, parentyvalues, parentyerror = bydate(triplicateorno, plotdata, date)
                         xvalues, yvalues, yerror = normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror, parentyvalues, parentyerror)
                         graphdata = extractionplots(xvalues, yvalues, yerror, ligand, isotope, linecolor, linetype, markershape, pHname, date)
             elif datecolors == 'n':
@@ -333,7 +335,7 @@ layout = go.Layout(
                           type = 'log',
                           #autorange = True,
                           domain = [0,1],
-                          range = [-5.2,1],
+                          range = [-5.2,3],
                           title = 'Ligand Concentration (mM)',
                           titlefont = dict(
                               family = 'Georgia',
@@ -376,4 +378,5 @@ layout = go.Layout(
                       )
                   )
 fig = go.Figure(data=graphdata, layout=layout)
+#plot = py.plot(fig, auto_open = True)
 plot = py.offline.plot(fig, image = 'png')
