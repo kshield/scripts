@@ -11,9 +11,9 @@ warnings.filterwarnings("ignore")
 import csv
 import plotly as py
 import plotly.graph_objs as go
-py.tools.set_credentials_file(username = 'kshield', api_key = 'H9UX6nYroLdbt1W1pjgj')
+#py.tools.set_credentials_file(username = 'kshield', api_key = 'H9UX6nYroLdbt1W1pjgj')
 
-datan = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\Results\\ProcessedDataFiles','allthedata.csv'))
+datan = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\1-Extractions\\Extractions\\Results\\ProcessedDataFiles','allthedata.csv'))
 
 # Are we plotting triplicate data or individual points?
 triplicateorno = input ('For n>=3 data, show average and error bars or individual points? (average/individual): ')
@@ -71,7 +71,7 @@ else:
 potential_isotopes = ['Ac227','Gd153','Lu177']
 # Isotope line format list
 Ac227line = 'dot'
-Gd153line = ''
+Gd153line = 'solid'
 Lu177line = 'dash'
 allisotopes = input ('Do you want to graph all possible isotopes? (y/n): ')
 if allisotopes == 'y':
@@ -149,7 +149,7 @@ for isotope in graphed_isotopes:
                     error_y = dict(
                         type = 'data',
                         array = yerror,
-                        visible = 'True',
+                        visible = True,
                         color = linecolor+'.5)'
                         )
                     )

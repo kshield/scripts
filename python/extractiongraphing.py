@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore")
 import csv
 import plotly as py
 import plotly.graph_objs as go
-py.tools.set_credentials_file(username = 'kshield', api_key = 'H9UX6nYroLdbt1W1pjgj')
+#py.tools.set_credentials_file(username = 'kshield', api_key = 'H9UX6nYroLdbt1W1pjgj')
 
 # functions needed
 def pH_select():
@@ -41,7 +41,7 @@ def isotope_select():
     potential_isotopes = ['Ac227','Ce134','Gd153','Lu177','Ac227 Daughters','La134']
     # Isotope line format list
     Ac227line = 'dot'
-    Gd153line = ''
+    Gd153line = 'solid'
     Lu177line = 'dash'
     Ce134line = 'longdash'
     allisotopes = input ('Do you want to graph all possible isotopes? (y/n): ')
@@ -95,15 +95,15 @@ def isotope_select():
 def ligand_select():
     potential_ligands = ['CDTA', 'DTPA', 'EDTA', 'PDTA', 'TTHA', 'DTPMP', 'EDTPA', 'CAM', 'CHHC', 'HCCH', 'HOPO', 'bacillibactin']
     # Ligand colors list
-    CDTAcolor = 'rgba(245,130,48,'
+    CDTAcolor = 'rgba(70,240,240,'
     DTPAcolor = 'rgba(128,0,0,'
     EDTAcolor = 'rgba(0,130,200,'
     PDTAcolor = 'rgba(240,50,230,'
-    TTHAcolor = 'rgba(230,25,75,'
+    TTHAcolor = 'rgba(250,190,190,'
     DTPMPcolor = 'rgba(241,73,35,'
     EDTPAcolor = 'rgba(0,0,128,'
-    CAMcolor = 'rgba(250,190,190,'
-    CHHCcolor = 'rgba(70,240,240,'
+    CAMcolor = 'rgba(230,25,75,'
+    CHHCcolor = 'rgba(245,130,48,'
     HCCHcolor = 'rgba(145,30,180,'
     HOPOcolor = 'rgba(60,180,75,'
     bbactincolor = HCCHcolor
@@ -120,7 +120,7 @@ def ligand_select():
                 graphed_ligands.append(ligand)
                 #ligand_colors.append(string(ligand)+'color')
                 if ligand == 'CDTA':
-                    ligand_colors.append('rgba(245,130,48,')
+                    ligand_colors.append('rgba(70,240,240,')
                 elif ligand == 'DTPA':
                     ligand_colors.append('rgba(128,0,0,')
                 elif ligand == 'EDTA':
@@ -128,15 +128,15 @@ def ligand_select():
                 elif ligand == 'PDTA':
                     ligand_colors.append('rgba(240,50,230,')
                 elif ligand == 'TTHA':
-                    ligand_colors.append('rgba(230,25,75,')
+                    ligand_colors.append('rgba(250,190,190,')
                 elif ligand == 'DTPMP':
                     ligand_colors.append('rgba(241,73,35,')
                 elif ligand == 'EDTPA':
                     ligand_colors.append('rgba(0,0,128,')
                 elif ligand == 'CAM':
-                    ligand_colors.append('rgba(250,190,190,')
+                    ligand_colors.append('rgba(230,25,75,')
                 elif ligand == 'CHHC':
-                    ligand_colors.append('rgba(70,240,240,')
+                    ligand_colors.append('rgba(245,130,48,')
                 elif ligand == 'HCCH':
                     ligand_colors.append('rgba(145,30,180,')
                 elif ligand == 'HOPO':
@@ -150,9 +150,9 @@ def extractdata(graphed_isotopes, graphed_ligands, graphed_pH):
     (datan['Ligand'] == ligand) &
     (datan['Isotope'] == parentname) &
     (datan['Exclude Me'] != 'y') &
-    (datan['Extractant Concentration (M)'] == 0.0025) &
+    (datan['Extractant Concentration (M)'] == 0.0025)] #&
             #liganddata = datan[(datan['Ligand'] == ligand) & (datan['Isotope'] == isotope) & (datan['Initial pH'] == pH) & (datan['Extractant Concentration (M)'] == 0.0025)&(datan['Exclude Me'] != 'y')]
-    (datan['Date'] >= '5/2/2019') & (datan['Date'] <= '5/4/2019')]
+    #(datan['Date'] >= '5/3/2019') & (datan['Date'] <= '5/5/2019')]
     liganddata.sort_values('Ligand Concentration (mM)', inplace = True)
 #                xvalues_all = liganddata['Ligand Concentration (mM)'].unique().tolist()
     if isotope in ['Ac227 Daughters','La134']:
@@ -162,6 +162,7 @@ def extractdata(graphed_isotopes, graphed_ligands, graphed_pH):
     elif isotope in ['Ac227','Ce134','Lu177','Gd153']:
         plotdata = liganddata[['Date','Ligand Concentration (mM)','Extraction %']]
         parentdata = []
+        print (plotdata)
     else:
         print ("Error - I don't know what to do with this isotope")
         print ('ran extractdata')
@@ -253,7 +254,7 @@ def normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror, pare
     return (xvalues, yvalues, yerror)
 def extractionplots(xvalues, yvalues, yerror, ligand, isotope, linecolor, linetype, markershape, pHname, date):
     # individual plots without lines - except do we want
-    linename = ligand#+'-'+isotope#+', '+date#+', '+pHname
+    linename = ligand+'-'+isotope#+', '+date#+', '+pHname
     if triplicateorno == 'individual':
         modetype = 'markers'
     elif triplicateorno == 'average':
@@ -274,7 +275,7 @@ def extractionplots(xvalues, yvalues, yerror, ligand, isotope, linecolor, linety
                 error_y = dict(
                     type = 'data',
                     array = yerror,
-                    visible = 'True',
+                    visible = True,
                     color = linecolor+'.5)'
                     )
                 )
@@ -293,7 +294,7 @@ triplicateorno = input ('Do you want the average or individual data? (average/in
 datecolors = input ('Do you want different dates to have different colors? (y/n): ')
 graphtitle = input ('Please input the desired graph title: ')
 
-datan = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\Results\\ProcessedDataFiles','allthedata.csv'))
+datan = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\1-Extractions\\Extractions\\Results\\ProcessedDataFiles','allthedata.csv'))
 graphdata = []
 for isotope in graphed_isotopes:
     #print (graphed_isotopes)
@@ -335,7 +336,7 @@ layout = go.Layout(
                           type = 'log',
                           #autorange = True,
                           domain = [0,1],
-                          range = [-5.2,3],
+                          range = [-5.2,1.2],
                           title = 'Ligand Concentration (mM)',
                           titlefont = dict(
                               family = 'Georgia',

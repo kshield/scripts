@@ -101,7 +101,7 @@ def atypicalrun(orgaliquotfactor = 2, aqaliquotfactor = 1):
         df_fillmein['Initial pH'] = ph
     def pH_constant():
         ph = input('What was the starting pH? ')
-        df_fillmein.loc[:,'pH'] = ph
+        df_fillmein.loc[:,'Initial pH'] = ph
     def organic_ligand_varies():
         organic_ligand = input("What were the organic extractants? (Input in ALL CAPS, comma separated): ")
         df_fillmein['Extractant'] = organic_ligand
@@ -135,10 +135,10 @@ def atypicalrun(orgaliquotfactor = 2, aqaliquotfactor = 1):
         buffer_concentrations = input ('Please input the buffer concentrations (mM): ')
         buffer_concentrations = [float(x) for x in buffer_concentrations.split(',')]
         buffer_concentrations = pd.Series(buffer_concentrations).values
-        df_fillmein['Buffer (mM)'] = buffer_concentrations
+        df_fillmein['Buffer Concentration (mM)'] = buffer_concentrations
     def buffer_concentration_constant():
         buffer_concentrations = input('What was the buffer concentration (mM)? ')
-        df_fillmein.loc[:,'Buffer (mM)'] = buffer_concentrations
+        df_fillmein.loc[:,'Buffer Concentration (mM)'] = buffer_concentrations
     varies = input ('What varies? PICK ONE: aql, aqconc, ph, orgl, orgconc, isotope, buffer, bufferconc  > ')
     volumevaried = input ('Were the volumes 100 uL aqueous/200 uL organic? (y/n): ')
     if volumevaried == 'n':
@@ -267,50 +267,47 @@ def parameters(df_fillmein, buffer = 'MES', buffer_conc = 100, extractant = 'HDE
     return (df_fillmein, aqaliquotfactor, orgaliquotfactor, isotope, triplicate, independentvariable, extractant, ligand)
 ##########################################  CALCULATED DATA #################################################
 def calculate(df_fillmein, aqaliquotfactor, orgaliquotfactor, isotope):
-    #---- 'AqCPM' --- CPMA
-    #---- 'OrgCPM' ---- CPMA
     df_fillmein['AqCPM'] = df_fillmein.AqCPMA
     df_fillmein.AqCPM /= aqaliquotfactor
     df_fillmein['OrgCPM'] = df_fillmein.OrgCPMA
     df_fillmein.OrgCPM /= orgaliquotfactor
-
-    #---- 'AqDaughterCPM' ---- CPMx
-    #---- 'OrgDaughterCPM' ----- CPMx
-    if isotope == 'Ac227':
-        column = 'CPMC'
-    elif isotope == 'Ce134':
-        column = 'CPMB'
-    df_fillmein['AqDaughterCPM'] = df_fillmein['Aq'+column]
-    df_fillmein.AqDaughterCPM /= aqaliquotfactor
-    df_fillmein['OrgDaughterCPM'] = df_fillmein['Org'+column]
-    df_fillmein.OrgDaughterCPM /= orgaliquotfactor
-
-
-    #---- 'Distribution Value'
-    #---- 'Extraction %'
-    #---- 'Daughter Distribution Value' ----
-    #---- 'Daughter Extraction %'
-    # extract values to manipulate
     aqueousvalues = df_fillmein.AqCPM.values
     organicvalues = df_fillmein.OrgCPM.values
-    aqueousdaughtervalues = df_fillmein.AqDaughterCPM.values
-    organicdaughtervalues = df_fillmein.OrgDaughterCPM.values
-    # make lists & do the math
     extractionpercent = []
-    daughterextraction = []
     for line in range(0,organicvalues.size):
         extractionpercent.append(organicvalues[line]/(aqueousvalues[line]+organicvalues[line]))
-        daughterextraction.append(organicdaughtervalues[line]/(aqueousdaughtervalues[line]+organicdaughtervalues[line]))
     distributionvalue = []
-    daughterdistributionvalue = []
     for line in range(0,organicvalues.size):
         distributionvalue.append(organicvalues[line]/aqueousvalues[line])
-        daughterdistributionvalue.append(organicdaughtervalues[line]/aqueousdaughtervalues[line])
-    # add lists into the dataframe
     df_fillmein['Extraction %'] = extractionpercent
-    df_fillmein['Daughter Extraction %'] = daughterextraction
     df_fillmein['Distribution Value'] = distributionvalue
-    df_fillmein['Daughter Distribution Value'] = daughterdistributionvalue
+    def daughtercalc(df_fillmein, isotope, column):
+        df_fillmein['AqDaughterCPM'] = df_fillmein['Aq'+column]
+        df_fillmein.AqDaughterCPM /= aqaliquotfactor
+        df_fillmein['OrgDaughterCPM'] = df_fillmein['Org'+column]
+        df_fillmein.OrgDaughterCPM /= orgaliquotfactor
+        aqueousdaughtervalues = df_fillmein.AqDaughterCPM.values
+        organicdaughtervalues = df_fillmein.OrgDaughterCPM.values
+        daughterextraction = []
+        for line in range(0,organicvalues.size):
+            daughterextraction.append(organicdaughtervalues[line]/(aqueousdaughtervalues[line]+organicdaughtervalues[line]))
+        daughterdistributionvalue = []
+        for line in range(0,organicvalues.size):
+            daughterdistributionvalue.append(organicdaughtervalues[line]/aqueousdaughtervalues[line])
+        df_fillmein['Daughter Extraction %'] = daughterextraction
+        df_fillmein['Daughter Distribution Value'] = daughterdistributionvalue
+        return (df_fillmein)
+    if isotope == 'Bk249':
+        column = 'CPMC'
+        df_fillmein = daughtercalc(df_fillmein, isotope, column)
+    elif isotope == 'Ac227':
+        column = 'CPMC'
+        df_fillmein = daughtercalc(df_fillmein, isotope, column)
+    elif isotope == 'Ce134':
+        column = 'CPMB'
+        df_fillmein = daughtercalc(df_fillmein, isotope, column)
+    df_fillmein.fillna(0)
+    # make lists & do the math
     return (df_fillmein)
 
 ##########################################  MAKE A QUICK PLOT ###############################################
@@ -321,24 +318,40 @@ def quickplot(df_fillmein, triplicate, independentvariable, ligand, extractant, 
         xvalues = df_fillmein[independentvariable].tolist()
         xvalues = xvalues[0:number_of_points]
         yvalues = []
-        yvalues2 = []
         yerror = []
-        yerror2 = []
         for point in range(0,number_of_points):
             value = df_fillmein.loc[(df_fillmein[independentvariable] == xvalues[point]), 'Extraction %'].mean()
-            value2 = df_fillmein.loc[(df_fillmein[independentvariable] == xvalues[point]), 'Daughter Extraction %'].mean()
             standard_deviation = df_fillmein.loc[(df_fillmein[independentvariable] == xvalues[point]), 'Extraction %'].std()
-            standard_deviation2 = df_fillmein.loc[(df_fillmein[independentvariable] == xvalues[point]), 'Daughter Extraction %'].std()
             yvalues.append(value)
-            yvalues2.append(value2)
             yerror.append(standard_deviation)
-            yerror2.append(standard_deviation2)
     else:
         yvalues = df_fillmein['Extraction %'].tolist()
-        yvalues2 = df_fillmein['Daughter Extraction %'].tolist()
         xvalues = df_fillmein[independentvariable].tolist()
         yerror = 0
-        yerror2 = 0
+    def daughterplot(df_fillmein, triplicate, independentvariable, ligand, extractant, date):
+        if triplicate == 'y':
+            yvalues2 = []
+            yerror2 = []
+            for point in range(0,number_of_points):
+                value2 = df_fillmein.loc[(df_fillmein[independentvariable] == xvalues[point]), 'Daughter Extraction %'].mean()
+                standard_deviation2 = df_fillmein.loc[(df_fillmein[independentvariable] == xvalues[point]), 'Daughter Extraction %'].std()
+                yvalues2.append(value2)
+                yerror2.append(standard_deviation2)
+        else:
+            yvalues2 = df_fillmein['Daughter Extraction %'].tolist()
+            yerror2 = 0
+        trace2 = go.Scatter(
+            x = xvalues,
+            y = yvalues2,
+            mode = 'markers',
+            name = ligand+' Daughters',
+            error_y = dict(
+                type = 'data',
+                array = yerror2,
+                visible = 'True'
+                )
+            )
+        return (df_fillmein, trace2)
     trace = go.Scatter(
         x = xvalues,
         y = yvalues,
@@ -351,18 +364,19 @@ def quickplot(df_fillmein, triplicate, independentvariable, ligand, extractant, 
             )
         )
     allthedata.append(trace)
-    trace2 = go.Scatter(
-        x = xvalues,
-        y = yvalues2,
-        mode = 'markers',
-        name = ligand+' Daughters',
-        error_y = dict(
-            type = 'data',
-            array = yerror2,
-            visible = 'True'
-            )
-        )
-    allthedata.append(trace2)
+    if isotope == 'Bk249':
+        df_fillmein = daughterplot(df_fillmein, isotope)
+        allthedata.append(trace2)
+
+    elif isotope == 'Ac227':
+        df_fillmein = daughterplot(df_fillmein, isotope)
+        allthedata.append(trace2)
+
+    elif isotope == 'Ce134':
+        column = 'CPMB'
+        df_fillmein = daughterplot(df_fillmein, isotope)
+        allthedata.append(trace2)
+
     layout = go.Layout(
         xaxis = dict(
             type = 'log',

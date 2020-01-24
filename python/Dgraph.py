@@ -9,7 +9,8 @@ warnings.filterwarnings("ignore")
 import csv
 import plotly as py
 import plotly.graph_objs as go
-py.tools.set_credentials_file(username = 'kshield', api_key = 'H9UX6nYroLdbt1W1pjgj')
+import math
+#py.tools.set_credentials_file(username = 'kshield', api_key = 'H9UX6nYroLdbt1W1pjgj')
 
 # functions needed
 def pH_select():
@@ -41,7 +42,7 @@ def isotope_select():
     potential_isotopes = ['Ac227','Ce134','Gd153','Lu177','Ac227 Daughters','La134']
     # Isotope line format list
     Ac227line = 'dot'
-    Gd153line = ''
+    Gd153line = 'solid'
     Lu177line = 'dash'
     Ce134line = 'longdash'
     allisotopes = input ('Do you want to graph all possible isotopes? (y/n): ')
@@ -50,12 +51,12 @@ def isotope_select():
         if includedaughters == 'y':
             graphed_isotopes = potential_isotopes
             isotope_lines = [Ac227line, Ce134line, Gd153line, Lu177line, Gd153line, Ac227line]
-            isotope_markers = ['circle','square','diamond','triangle','x','star']
+            isotope_markers = ['circle','square','triangle-up','diamond','x','star']
             isotope_data = ['Ac227','Ce134','Gd153','Lu177','Ac227','Ce134']
         elif includedaughters =='n':
             graphed_isotopes = potential_isotopes[0:3]
             isotope_lines = [Ac227line, Ce134line, Gd153line, Lu177line]
-            isotope_markers = ['circle','square','diamond','triangle']
+            isotope_markers = ['circle','square','triangle-up','diamond']
             isotope_data = ['Ac227','Ce134','Gd153','Lu177']
     else:
         graphed_isotopes = []
@@ -67,27 +68,27 @@ def isotope_select():
             if isotope_yes == 'y':
                 graphed_isotopes.append(isotope)
                 if isotope == 'Ac227':
-                    isotope_lines.append('dot')
+                    isotope_lines.append(Ac227line)
                     isotope_markers.append('circle')
                     isotope_data.append('Ac227')
                 elif isotope == 'Gd153':
-                    isotope_lines.append('')
+                    isotope_lines.append(Gd153line)
                     isotope_markers.append('square')
                     isotope_data.append('Gd153')
                 elif isotope == 'Lu177':
-                    isotope_lines.append('dash')
-                    isotope_markers.append('diamond')
+                    isotope_lines.append(Lu177line)
+                    isotope_markers.append('triangle-up')
                     isotope_data.append('Lu177')
                 elif isotope == 'Ce134':
-                    isotope_lines.append('longdash')
-                    isotope_markers.append('triangle')
+                    isotope_lines.append(Ce134line)
+                    isotope_markers.append('diamond')
                     isotope_data.append('Ce134')
                 elif isotope == 'Ac227 Daughters':
-                    isotope_lines.append('dashdot')
+                    isotope_lines.append(Gd153line)
                     isotope_markers.append('x')
                     isotope_data.append('Ac227')
                 elif isotope == 'La134':
-                    isotope_lines.append('longdashdot')
+                    isotope_lines.append(Lu177line)
                     isotope_markers.append('star')
                     isotope_data.append('Ce134')
     print ('ran isotope_select')
@@ -145,8 +146,14 @@ def ligand_select():
                     ligand_colors.append('rgba(145,30,180,')
     print ('ran ligand_select')
     return (graphed_ligands, ligand_colors)
+# plot: D/D0
+# need to extract D0 values
+# need to define D values (probably easiest to just put these values in by hand once instead of writing code for it)
+# normalization? I don't think so...
+# start without any by date data analysis
+
+
 def extractdata(graphed_isotopes, graphed_ligands, graphed_pH):
-    
     liganddata = datan[(datan['Initial pH'] == pH) &
     (datan['Ligand'] == ligand) &
     (datan['Isotope'] == parentname) &
@@ -155,88 +162,58 @@ def extractdata(graphed_isotopes, graphed_ligands, graphed_pH):
             #liganddata = datan[(datan['Ligand'] == ligand) & (datan['Isotope'] == isotope) & (datan['Initial pH'] == pH) & (datan['Extractant Concentration (M)'] == 0.0025)&(datan['Exclude Me'] != 'y')]
             #(datan['Date'] >= '10/10/2018') & (datan['Date'] <= '10/11/2018') &
     liganddata.sort_values('Ligand Concentration (mM)', inplace = True)
-#                xvalues_all = liganddata['Ligand Concentration (mM)'].unique().tolist()
+    #                xvalues_all = liganddata['Ligand Concentration (mM)'].unique().tolist()
     if isotope in ['Ac227 Daughters','La134']:
         plotdata = liganddata[['Date','Ligand Concentration (mM)','Daughter Distribution Value']]
         plotdata = plotdata.rename(index = str, columns={"Daughter Distribution Value":"Distribution Value"})
+        #parentdata = liganddata[['Date','Ligand Concentration (mM)','Extraction %']]
     elif isotope in ['Ac227','Ce134','Lu177','Gd153']:
         plotdata = liganddata[['Date','Ligand Concentration (mM)','Distribution Value']]
-            #    print (liganddata)
+        print (plotdata)
+        #parentdata = []
     else:
         print ("Error - I don't know what to do with this isotope")
-        print ('ran extractdata')
+    print ('ran extractdata')
     print(pH, ligand, isotope)
-    return (plotdata, linecolor, markershape, linetype, pHname, ligand, isotope)
-def bydate(triplicateorno, plotdata):
+    return (plotdata, #parentdata,
+    linecolor, markershape, linetype, pHname, ligand, isotope)
+def notbydate(plotdata, isotope):
+    # define D0 values (taken from allthedata.csv zero ligand by hand)
+    d0_Ac = 4.334488
+    d0_Acerror = 0.988426
+    d0_Gd = 5.283318
+    d0_Gderror = 2.748455
+    fullydeprotonated_DTPA = 6.14541E-8
     xvalues = []
     yvalues = []
     yerror = []
-    datespecificdata = plotdata[(plotdata['Date'] == date)]
-    if triplicateorno == 'average' and datecolors == 'y':
-        uniquexentries = datespecificdata['Ligand Concentration (mM)'].unique().tolist()
-        numberofentries = datespecificdata.groupby('Ligand Concentration (mM)').size().tolist()
-        for point in range(0,len(uniquexentries)):
-            xvalues.append(uniquexentries[point])
-            rawvalue = datespecificdata.loc[(datespecificdata['Ligand Concentration (mM)'] == uniquexentries[point]),'Distribution Value'].mean()
-            rawerror = datespecificdata.loc[(datespecificdata['Ligand Concentration (mM)'] == uniquexentries[point]),'Distribution Value'].std()
-            logvalue = np.log10(rawvalue)
-            logerror = np.log10(rawerror)
-            yvalues.append(logvalue)
-            yerror.append(logerror)
-    elif triplicateorno == 'individual' and datecolors == 'y':
-        xvalues = datespecificdata['Ligand Concentration (mM)'].tolist()
-        rawyvalues = datespecificdata['Distribution Value'].tolist()
-        yvalues = np.log10(rawyvalues)
-        yerror = [0] * len(xvalues)
+    uniquexentries = plotdata['Ligand Concentration (mM)'].unique().tolist()
+    numberofentries = plotdata.groupby('Ligand Concentration (mM)').size().tolist()
+    for point in range(0,len(uniquexentries)):
+        xvalue = uniquexentries[point]#*fullydeprotonated_DTPA
+        logxvalue = math.log10(xvalue)
+        # if the D value = 0, the point needs to be discarded
+        #if logxvalue > 0.000000000:
+        xvalues.append(xvalue)
+        #plotdata = plotdata.convert_objects(convert_numeric=True)
+        value = plotdata.loc[(plotdata['Ligand Concentration (mM)'] == uniquexentries[point]),'Distribution Value']
+        value = pd.to_numeric(value, errors='coerce').mean()
+        error = plotdata.loc[(plotdata['Ligand Concentration (mM)'] == uniquexentries[point]),'Distribution Value']
+        error = pd.to_numeric(error, errors='coerce').std()
+        #value = d0_Gd/value
+        print (xvalue, value, error)
+        #logvalue = math.log10(value)
+        #logerror = math.log10(error)
+        #print (xvalue, logvalue, error, logerror)
+        yvalues.append(value)
+        yerror.append(error)
     return (xvalues, yvalues, yerror)
-def notbydate(triplicateorno, plotdata):
-    xvalues = []
-    yvalues = []
-    yerror = []
-    if triplicateorno == 'average':
-        uniquexentries = plotdata['Ligand Concentration (mM)'].unique().tolist()
-        numberofentries = plotdata.groupby('Ligand Concentration (mM)').size().tolist()
-        for point in range(0,len(uniquexentries)):
-            xvalues.append(uniquexentries[point])
-            rawvalue = plotdata.loc[(plotdata['Ligand Concentration (mM)'] == uniquexentries[point]),'Distribution Value'].mean()
-            rawerror = plotdata.loc[(plotdata['Ligand Concentration (mM)'] == uniquexentries[point]),'Distribution Value'].std()
-            logvalue = np.log10(rawvalue)
-            logerror = np.log10(rawerror)
-            yvalues.append(logvalue)
-            yerror.append(logerror)
-    elif triplicateorno == 'individual':
-        xvalues = plotdata['Ligand Concentration (mM)'].tolist()
-        rawyvalues = plotdata['Distribution Value'].tolist()
-        yvalues = np.log10(rawyvalues)
-        yerror = [0] * len(xvalues)
-    return (xvalues, yvalues, yerror)
-def normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror):
-    if normalizedorno == 'y':
-        sortedyvalues = sorted(yvalues, reverse = True) # sorts smallest to largest
-        maxyvalue = sortedyvalues[0]
-        if maxyvalue == 0:
-            maxyvalue = 1 # sets max value as first (largest) value in the list
-        yvalues[:] = [x/maxyvalue for x in yvalues] # defines new list as the normalized values;
-                                        # keeps the original ordering to match the x values ordering
-# WRONG ???? (ASK SOMEONE BETTER AT STATISTICS...)
-        if triplicateorno == 'y':
-            sortedyerror = sorted(yerror, reverse = True)
-            maxyerror = sortedyerror[0]
-            yerror[:] = [x/maxyerror for x in yerror]
-    return (xvalues, yvalues, yerror)
-def distributionplots(xvalues, yvalues, yerror, ligand, isotope, linecolor, linetype, markershape, pHname, date):
+def distributionplots(xvalues, yvalues, yerror, ligand, isotope, linecolor, linetype, markershape, pHname):
     # individual plots without lines - except do we want
-    linename = ligand+'-'+isotope+', '+pHname+', '+date
-    if triplicateorno == 'individual':
-        modetype = 'markers'
-    elif triplicateorno == 'average':
-        modetype = 'markers+lines'
-    if datecolors == 'y':
-        markerdefine = dict(symbol = markershape, size = 10)
-        linedefine = dict(dash = linetype)
-    elif datecolors == 'n':
-        markerdefine = dict(color = linecolor+'1)', symbol = markershape, size = 10)
-        linedefine = dict(color = linecolor+'1)', dash = linetype)
+    linename = ligand+'-'+isotope#+', '+date#+', '+pHname
+    modetype = 'markers+lines'
+    markerdefine = dict(color = linecolor+'1)', symbol = markershape, size = 10)
+    linedefine = dict(color = linecolor+'1)', dash = linetype)
     trace = go.Scatter(
                 x = xvalues,
                 y = yvalues,
@@ -244,12 +221,12 @@ def distributionplots(xvalues, yvalues, yerror, ligand, isotope, linecolor, line
                 name = linename,
                 line = linedefine,
                 marker = markerdefine,
-                error_y = dict(
-                    type = 'data',
-                    array = yerror,
-                    visible = 'True',
-                    color = linecolor+'.5)'
-                    )
+                #error_y = dict(
+                #    type = 'data',
+                #    array = yerror,
+                #    visible = 'True',
+                #    color = linecolor+'.5)'
+                #    )
                 )
     graphdata.append(trace)
     print ('ran plots')
@@ -261,12 +238,10 @@ graphed_ligands, ligand_colors = ligand_select()
 
 # I don't want to have to answer this question a bunch of times...this should come as an input
 # after the pH, isotope, ligand inputs but before the code starts actually running
-normalizedorno = input ('Do you want the normalized data? (y = normalized; n = raw) (y/n): ')
-triplicateorno = input ('Do you want the average or individual data? (average/individual): ')
-datecolors = input ('Do you want different dates to have different colors? (y/n): ')
+
 graphtitle = input ('Please input the desired graph title: ')
 
-datan = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Extractions\\Results\\ProcessedDataFiles','allthedata.csv'))
+datan = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\1-Extractions\\Extractions\\Results\\ProcessedDataFiles','allthedata.csv'))
 graphdata = []
 for isotope in graphed_isotopes:
     #print (graphed_isotopes)
@@ -281,38 +256,9 @@ for isotope in graphed_isotopes:
         for pH in graphed_pH:
             pHname = str(pH)
             plotdata, linecolor, markershape, linetype, pHname, ligand, isotope = extractdata(graphed_isotopes, graphed_ligands, graphed_pH)
-            #datecolors = input ('Should individual dates of '+ligand+' + '+isotope+' + '+pHname+' get different colors? (y/n): ')
-            if datecolors == 'y':
-                dates_all = plotdata['Date'].unique().tolist()
-                for date in dates_all:
-                    if not plotdata.empty:
-                #if data is extracted, run the rest. if not; move on
-                        xvalues, yvalues, yerror = bydate(triplicateorno, plotdata)
-                        xvalues, yvalues, yerror = normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror)
-                        graphdata = distributionplots(xvalues, yvalues, yerror, ligand, isotope, linecolor, linetype, markershape, pHname, date)
-            elif datecolors == 'n':
-                date = ''
-                if not plotdata.empty:
-            #if data is extracted, run the rest. if not; move on
-                    xvalues, yvalues, yerror = notbydate(triplicateorno, plotdata)
-                    xvalues, yvalues, yerror = normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror)
-                    graphdata = distributionplots(xvalues, yvalues, yerror, ligand, isotope, linecolor, linetype, markershape, pHname, date)
+            xvalues, yvalues, yerror = notbydate(plotdata, isotope)
+            graphdata = distributionplots(xvalues, yvalues, yerror, ligand, isotope, linecolor, linetype, markershape, pHname)
 
-            # if triplicateorno == 'individual':
-            #     if datecolors == 'y':
-            #         print (plotdata)
-            #         dates_all = plotdata['Date'].unique().tolist()
-            #         for date in dates_all:
-            #             if not plotdata.empty:
-            #                 xvalues, yvalues, yerror = bydate(plotdata)
-            #                 xvalues, yvalues, yerror = normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror)
-            #                 graphdata = plots(xvalues, yvalues, yerror, ligand, isotope, linecolor, linetype, markershape, pHname, date)
-            #     else:
-            #         if not plotdata.empty:
-            #     #if data is extracted, run the rest. if not; move on
-            #             xvalues, yvalues, yerror, date = average(triplicateorno, plotdata, datecolors)
-            #             xvalues, yvalues, yerror = normalization(normalizedorno, triplicateorno, xvalues, yvalues, yerror)
-            #             graphdata = plots(xvalues, yvalues, yerror, ligand, isotope, linecolor, linetype, markershape, pHname, date)
 layout = go.Layout(
                       title = graphtitle,
                           titlefont = dict(
@@ -320,11 +266,11 @@ layout = go.Layout(
                               size = 30
                           ),
                       xaxis = dict(
-                          type = 'log',
-                          #autorange = True,
+                          type = 'linear',
+                          autorange = True,
                           domain = [0,1],
-                          range = [-5.2,3],
-                          title = 'Ligand Concentration (mM)',
+                          range = [-5.2,1],
+                          title = '[Ligand]',
                           titlefont = dict(
                               family = 'Georgia',
                               size = 22
@@ -340,10 +286,10 @@ layout = go.Layout(
                           dtick = 1),
                       yaxis = dict(
                           type = 'linear',
-                          autorange = False,
+                          autorange = True,
                           domain = [0,1],
                           range = [0,1.1],
-                          title = 'Relative Extraction',
+                          title = 'D0/D',
                           titlefont = dict(
                               family = 'Georgia',
                               size = 22
@@ -362,7 +308,7 @@ layout = go.Layout(
                           orientation = 'h',
                           xanchor = 'center',
                           x = 0.5,
-                          y = 1.05
+                          y = 1.04
                       )
                   )
 fig = go.Figure(data=graphdata, layout=layout)
