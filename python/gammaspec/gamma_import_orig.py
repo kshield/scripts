@@ -7,6 +7,8 @@ import ggplot
 from ggplot import *
 import plotnine as p9
 
+#useless changes to figure out github
+
 
 # Import data into a pandas dataframe
 def gamma_import():
@@ -19,7 +21,8 @@ def gamma_import():
     # START WITH THE BACKGROUND DATA
     # import the background spectrum
     datan = pd.read_csv(os.path.join('c:\\Users\\Kathy Shield\\Desktop\\Berkeley\\AbergelGroup\\Research\\Emily+Hailie-Fr223\\Elutions2019\\background.spe'))
-
+    filename = input('What is the filename?')
+    filelocation = input('What is the file location? (Berkeley\\AbergelGroup\\Research\\...)')
     # pull out info about the energy spectrum of the HPGe
     energyindex = datan.index[datan['$SPEC_ID:'] == '$ENER_FIT:'] # find the right row
     fit_parameters = datan.loc[energyindex[0]+1].values[0]

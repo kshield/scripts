@@ -49,3 +49,7 @@ ax1 = fig.add_subplot(gs[0])
 ax1.plot(x_array, y_array_gauss, "k.")
 ax1.plot(x_array, _1gaussian(x_array, *popt_gauss), 'k--')
 plt.show()
+
+plt.ion()
+bkgd_data_fr.plot(x='Energy (keV)', y=range(1,18), legend=False,colormap='Blues',xlim=(0,500),title="Fr Data")
+plt.plot(bkgd_data_fr['Energy (keV)'], bkgd_data_fr[17], linewidth=2, color='#e0004d')
